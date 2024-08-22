@@ -1,0 +1,52 @@
+/* Modal Overlay */
+.alert_overlay {
+    background-color: rgba(0, 0, 0, 0.75);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Modal Content */
+  .alert_modal {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .alert_modal-content h2 {
+    margin-top: 0;
+    font-size: 24px;
+  }
+  
+  .alert_modal-content p {
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+  
+  .alert_success-icon {
+    width: 80px; /* Adjust the width */
+    height: 80px; /* Adjust the height */
+    margin: 20px 0;
+  }
+  
+  .alert_close-button {
+    background-color: #555;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .alert_close-button:hover {
+    background-color: #777;
+  }
