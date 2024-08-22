@@ -40,5 +40,9 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^4.6.2"
-  }
+  },
+  "description": "- Primary Background color : #1A1A1A\r - secondary Background Color : #282828\r - text color : white (primary)\r - secondary text color : #Eff2f699\r - secondary text color : #Eff1f6bf(Darker for headings)",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC"
 }
