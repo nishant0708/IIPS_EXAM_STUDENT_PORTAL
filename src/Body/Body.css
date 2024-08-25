@@ -1,0 +1,10 @@
+.compiler-body
+{
+    display: flex;
+    background-color: #0a121e;
+}
+.body-contents
+{
+    width: 28.5%;
+    overflow-x: hidden;
+}

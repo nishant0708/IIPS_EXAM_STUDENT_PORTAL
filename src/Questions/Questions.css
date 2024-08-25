@@ -1,0 +1,38 @@
+.compiler-questions
+{
+    width: 70%;
+    min-height:800px;
+    height: 100%;
+    min-width:150px;
+    overflow-y:auto;
+    background-color: #282828;
+    color: white;
+    border-radius:10px;
+    margin-left:10px;
+    font-size: 20px;
+    margin-top:10px;
+}
+.questions-header
+{
+    padding-left:20px;
+    background-color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height:50px;
+}
+.questions-content
+{
+    padding-left:10px;
+    padding-top:10px;
+}
+.content-heading
+{
+    font-weight: 600;
+    font-size: xx-large;
+}
+.questions-image
+{
+    max-width: 500px;
+    width: 90%;
+}
