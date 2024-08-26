@@ -1,8 +1,9 @@
 .compiler-questions
 {
     width: 70%;
-    height: 600px;
+    height: 98%;
     min-width:150px;
+    max-width: 90vw;
     overflow-y:auto;
     background-color: #282828;
     color: white;

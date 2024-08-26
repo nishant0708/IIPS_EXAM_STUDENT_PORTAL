@@ -1,5 +1,6 @@
 .compiler-body
-{
+{ 
+    height: 88vh;
     display: flex;
     background-color: #0a121e;
 }
