@@ -1,23 +1,41 @@
-.compiler-editor
-{
-    width:100%;
+.compiler-editor {
+    width: 100%;
     background-color: #282828;
-    min-height:50px;
+    min-height: 100px;
     min-width: 125px;
     height: 600px;
     margin: 10px 10px 0 5px;
-    border-radius:10px;
+    border-radius: 10px;
     color: white;
     font-size: 20px;
-}
-.editor-header
-{
     display: flex;
-    gap:5px;
+    flex-direction: column;
+    overflow: hidden; /* Ensure no overflow from the parent */
+}
+
+.editor-header {
+    display: flex;
+    gap: 5px;
     align-items: center;
     background-color: #1a1a1a;
     height: 50px;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-    padding-left:20px;
+    padding-left: 20px;
+}
+
+.editor-editor {
+    flex-grow: 1; /* Allow the editor to grow and fill the space */
+    position: relative; /* Ensure the editor is positioned relative to the parent */
+    overflow: hidden; /* Hide overflow to remove scrollbar from parent */
+}
+
+.editor-monaco {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-x: auto; /* Enable horizontal scrolling within Monaco */
+    overflow-y: auto; /* Enable vertical scrolling within Monaco */
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import { MdReportProblem } from "react-icons/md";
-import merge from "../assets/merge_ex1 1.png";
+import merge from "../Assets/merge_ex1 1.png";
 import "./Questions.css";
 const Questions=()=>
 {
