@@ -7,6 +7,19 @@ body {
   {
       position: relative;
   }
+  .display-flex
+  {
+    display: flex;
+    justify-content: space-between;
+  }
+  .display-flex div
+  {
+    width: 175px;
+  }
+  .display-flex div:nth-child(even)
+  {
+    margin-right: 12px;
+  }
   .eyes-login
   {
     position: absolute;
@@ -90,5 +103,9 @@ body {
       .login-container
       {
         width: 275px;
+      }
+      .display-flex div
+      {
+        width: 120px;
       }
   }

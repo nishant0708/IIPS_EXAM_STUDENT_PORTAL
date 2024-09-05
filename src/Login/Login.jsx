@@ -10,6 +10,7 @@ function Login() {
   const [rollno, setRollNo] = useState("");
   const [enrollno,setEnrollNo] = useState("");
   const [subcode,setSubcode] = useState("");
+  const [subname,setSubname] = useState("");
   const [date,setDate] = useState("");
   const [d,setDisplay] = useState("none");
 
@@ -22,7 +23,7 @@ function Login() {
     e.preventDefault();
 
     // Simulate a login process
-    if (name && password && rollno && enrollno && subcode && date) {
+    if (name && password && rollno && enrollno && subcode && subname && date) {
       alert("Login successful!");
       // Proceed with your login logic here
     } else {
@@ -60,17 +61,18 @@ function Login() {
             </div>
           </label>
         </div>
-        <div>
-            <label>Roll Number:</label>
+        <div className="display-flex">
+          <div>
+            <label>Roll No. :</label>
             <input 
             type="text"
             value={rollno}
             onChange={(e) => setRollNo(e.target.value)}
             required
             />
-        </div>
-        <div>
-            <label>Enrollment Number:</label>
+          </div>
+          <div>
+            <label>Enrollment No. :</label>
             <input 
             type="text"
             value={enrollno}
@@ -78,7 +80,9 @@ function Login() {
             required
             />
         </div>
-        <div>
+        </div>
+        <div className="display-flex">
+          <div>
             <label>Subject Code:</label>
             <input 
             type="text"
@@ -86,6 +90,16 @@ function Login() {
             onChange={(e) => setSubcode(e.target.value)}
             required
             />
+          </div>
+          <div>
+            <label>Subject:</label>
+            <input 
+            type="text"
+            value={subname}
+            onChange={(e) => setSubname(e.target.value)}
+            required
+            />
+          </div>
         </div>
         <div>
             <label>Date:</label>
