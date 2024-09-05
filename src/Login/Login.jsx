@@ -8,16 +8,11 @@ function Login() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [rollno, setRollNo] = useState("");
-  const [enrollno,setEnrollNo] = useState("");
-  const [subcode,setSubcode] = useState("");
-  const [subname,setSubname] = useState("");
-  const [date,setDate] = useState("");
-  const [d,setDisplay] = useState("none");
-
-  const toggled=()=>
-  {
-      d === "block" ? setDisplay("none") : setDisplay("block");
-  }
+  const [enrollno, setEnrollNo] = useState("");
+  const [subcode, setSubcode] = useState("");
+  const [subname, setSubname] = useState("");
+  const [date, setDate] = useState("");
+  const [d, setDisplay] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -39,11 +34,11 @@ function Login() {
         <div>
           <label>Name:</label>
           <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Enter the Name:"
-          required
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter the Name:"
+            required
           />
         </div>
         <div>
@@ -51,71 +46,79 @@ function Login() {
             Password:
             <div className="password-eye-container">
               <input
-                id="password-eye"
-                type={d === "block" ? "text" : "password"}
+                type={d ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter the Password:"
                 required
               />
-              <FaEye className="eyes-login" onClick={() => toggled()} style={{display: d}}/>
-              <FaEyeSlash className="eyes-login" onClick={() => toggled()} style={{display: (d === "block" ? "none" : "block")}}/>
+              {d ? (
+                <FaEye
+                  className="eyes-login"
+                  onClick={() => setDisplay(false)}
+                />
+              ) : (
+                <FaEyeSlash
+                  className="eyes-login"
+                  onClick={() => setDisplay(true)}
+                />
+              )}
             </div>
           </label>
         </div>
         <div className="display-flex">
           <div>
             <label>Roll No. :</label>
-            <input 
-            type="text"
-            value={rollno}
-            onChange={(e) => setRollNo(e.target.value)}
-            placeholder="Enter the Roll No:"
-            required
+            <input
+              type="text"
+              value={rollno}
+              onChange={(e) => setRollNo(e.target.value)}
+              placeholder="Enter the Roll No:"
+              required
             />
           </div>
           <div>
             <label>Enrollment No. :</label>
-            <input 
-            type="text"
-            value={enrollno}
-            onChange={(e) => setEnrollNo(e.target.value)}
-            placeholder="Enter the Enrollment No:"
-            required
+            <input
+              type="text"
+              value={enrollno}
+              onChange={(e) => setEnrollNo(e.target.value)}
+              placeholder="Enter the Enrollment No:"
+              required
             />
-        </div>
+          </div>
         </div>
         <div className="display-flex">
           <div>
             <label>Subject Code:</label>
-            <input 
-            type="text"
-            value={subcode}
-            onChange={(e) => setSubcode(e.target.value)}
-            placeholder="Enter the Subject Code:"
-            required
+            <input
+              type="text"
+              value={subcode}
+              onChange={(e) => setSubcode(e.target.value)}
+              placeholder="Enter the Subject Code:"
+              required
             />
           </div>
           <div>
             <label>Subject:</label>
-            <input 
-            type="text"
-            value={subname}
-            onChange={(e) => setSubname(e.target.value)}
-            placeholder="Enter the Subject:"
-            required
+            <input
+              type="text"
+              value={subname}
+              onChange={(e) => setSubname(e.target.value)}
+              placeholder="Enter the Subject:"
+              required
             />
           </div>
         </div>
         <div>
-            <label>Date:</label>
-            <input 
+          <label>Date:</label>
+          <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            style={{colorScheme: "dark"}}
+            style={{ colorScheme: "dark" }}
             required
-            />
+          />
         </div>
         <button type="submit">Login</button>
       </form>
