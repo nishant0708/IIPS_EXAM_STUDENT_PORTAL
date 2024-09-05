@@ -1,5 +1,8 @@
+body ::placeholder
+{
+  color: white;
+}
 body {
-
     height: 100vh;
     margin: 0;
   }
@@ -14,11 +17,11 @@ body {
   }
   .display-flex div
   {
-    width: 175px;
+    width: 225px;
   }
   .display-flex div:nth-child(even)
   {
-    margin-right: 12px;
+    margin-right: 13px;
   }
   .eyes-login
   {
@@ -36,7 +39,7 @@ body {
   }
   .login-container {
     width: 100%;
-    max-width: 400px;
+    max-width: 500px;
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 8px;
@@ -107,5 +110,9 @@ body {
       .display-flex div
       {
         width: 120px;
+      }
+      .display-flex div:nth-child(even)
+      {
+        margin-right: 9px;
       }
   }

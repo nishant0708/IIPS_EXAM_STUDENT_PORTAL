@@ -42,6 +42,7 @@ function Login() {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          placeholder="Enter the Name:"
           required
           />
         </div>
@@ -54,6 +55,7 @@ function Login() {
                 type={d === "block" ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter the Password:"
                 required
               />
               <FaEye className="eyes-login" onClick={() => toggled()} style={{display: d}}/>
@@ -68,6 +70,7 @@ function Login() {
             type="text"
             value={rollno}
             onChange={(e) => setRollNo(e.target.value)}
+            placeholder="Enter the Roll No:"
             required
             />
           </div>
@@ -77,6 +80,7 @@ function Login() {
             type="text"
             value={enrollno}
             onChange={(e) => setEnrollNo(e.target.value)}
+            placeholder="Enter the Enrollment No:"
             required
             />
         </div>
@@ -88,6 +92,7 @@ function Login() {
             type="text"
             value={subcode}
             onChange={(e) => setSubcode(e.target.value)}
+            placeholder="Enter the Subject Code:"
             required
             />
           </div>
@@ -97,6 +102,7 @@ function Login() {
             type="text"
             value={subname}
             onChange={(e) => setSubname(e.target.value)}
+            placeholder="Enter the Subject:"
             required
             />
           </div>
@@ -107,6 +113,7 @@ function Login() {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
+            style={{colorScheme: "dark"}}
             required
             />
         </div>
