@@ -29,27 +29,26 @@ function Login() {
   return (
     <div className="login-container">
       <img src={logo} alt="Logo" /> {/* Corrected image tag */}
-      <h2>Student: Login</h2>
+      <h2>Student Login</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name:</label>
+        <div className="form-field">
+          <label >Name :</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Enter the Name:"
+            placeholder="Enter the Name"
             required
           />
         </div>
-        <div>
-          <label>
-            Password:
-            <div className="password-eye-container">
+        <div className="form-field">
+          <label>Password :</label>
+          <div className="password-eye-container">
               <input
                 type={d ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter the Password:"
+                placeholder="Enter the Password"
                 required
               />
               {d ? (
@@ -64,54 +63,53 @@ function Login() {
                 />
               )}
             </div>
-          </label>
         </div>
         <div className="display-flex">
-          <div>
-            <label>Roll No. :</label>
+          <div className="form-field">
+            <label>Roll Number :</label>
             <input
               type="text"
               value={rollno}
               onChange={(e) => setRollNo(e.target.value)}
-              placeholder="Enter the Roll No:"
+              placeholder="Enter the Roll No"
               required
             />
           </div>
-          <div>
-            <label>Enrollment No. :</label>
+          <div className="form-field">
+            <label>Enrollment Number :</label>
             <input
               type="text"
               value={enrollno}
               onChange={(e) => setEnrollNo(e.target.value)}
-              placeholder="Enter the Enrollment No:"
+              placeholder="Enter the Enrollment No"
               required
             />
           </div>
         </div>
         <div className="display-flex">
-          <div>
-            <label>Subject Code:</label>
+          <div className="form-field">
+            <label>Subject Code :</label>
             <input
               type="text"
               value={subcode}
               onChange={(e) => setSubcode(e.target.value)}
-              placeholder="Enter the Subject Code:"
+              placeholder="Enter the Subject Code"
               required
             />
           </div>
-          <div>
-            <label>Subject:</label>
+          <div className="form-field">
+            <label>Subject :</label>
             <input
               type="text"
               value={subname}
               onChange={(e) => setSubname(e.target.value)}
-              placeholder="Enter the Subject:"
+              placeholder="Enter the Subject"
               required
             />
           </div>
         </div>
-        <div>
-          <label>Date:</label>
+        <div className="form-field">
+          <label>Date :</label>
           <input
             type="date"
             value={date}
