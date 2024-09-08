@@ -21,7 +21,7 @@
     text-align: center;
   }
   
-  /* Container for the list of rules */
+  
   .rules-list {
     margin-bottom: 20px;
     width: 100%;
@@ -32,10 +32,9 @@
     border-radius: 4px;
     padding: 20px;
     box-sizing: border-box;
-    overflow-y: auto; /* Allow scrolling if content overflows */
+    overflow-y: auto; 
   }
   
-  /* Each rule item */
   .rules_item {
     font-size: 1.125rem; /* Adjusted for readability */
     padding: 10px;
