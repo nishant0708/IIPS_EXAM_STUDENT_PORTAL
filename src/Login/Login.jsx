@@ -54,11 +54,13 @@ function Login() {
               {d ? (
                 <FaEye
                   className="eyes-login"
+                  color="white"
                   onClick={() => setDisplay(false)}
                 />
               ) : (
                 <FaEyeSlash
                   className="eyes-login"
+                  color="white"
                   onClick={() => setDisplay(true)}
                 />
               )}
