@@ -1,100 +1,160 @@
-.navbar
-{
+.navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
     background-color: #282828;
     color: white;
-    font-size:22px;
-    height:75px;
-}
-.navbar-name
-{
+    font-size: 22px;
+    height: 75px;
+    position: relative;
+  }
+  
+  .hamburger-icon {
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  .problem-list-text {
+    margin-left: 10px;
+    font-size: 18px;
+    color: white;
+  }
+  
+ .navbar-name {
+    font-size: 18px;
     display: flex;
     gap: 20px;
     justify-content: center;
     align-items: center;
+    position: absolute;
+    left: 15%;
 }
-.navbar-contents
-{
+  
+  .navbar-contents {
     display: flex;
     align-items: center;
     gap: 25px;
-}
-.navbar-run,.navbar-submit,.navbar-timer
-{
+    margin: 0 auto; /* Ensures the Run and Submit buttons are centered */
+  }
+  
+  .navbar-run, .navbar-submit, .navbar-timer  {
     display: flex;
     align-items: center;
-    gap:5px;
+    gap: 5px;
     background-color: #1a1a1a;
-    width:100px;
-    height:50px;
-    display: flex;
+    width: 100px;
+    height: 50px;
     justify-content: center;
     border-radius: 10px;
-}
-.navbar-run:hover,.navbar-submit:hover
-{
+  }
+  
+  .navbar-submit {
+    width: 125px;
+  }
+  
+  .navbar-timer {
+    width: 150px;
+  }
+  
+  .navbar-left-margin {
+    display: flex;
+    align-items: center;
+    margin-left: 20px;
+  }
+  
+  .navbar-right-margin {
+    margin-right: 20px;
+  }
+  
+  /* Sidebar Styles */
+  .sidebar {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 35%;
+    height: 100%;
+    background-color: #333;
+    color: white;
+    transition: 0.5s ease-in-out;
+    z-index: 1000;
+    
+  }
+  
+  .sidebar.open {
+    left: 0;
+    padding: 0px 20px;
+    overflow-y: auto;
+  }
+  
+  .slidebar-back-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px; /* Move the icon to the right */
+    font-size: 36px;
     cursor: pointer;
-}
-.navbar-run:hover
-{
-    background-color: #4caf50;
-}
-.navbar-submit:hover
-{
-    background-color: red;
-}
-.navbar-submit
-{
-    width:125px;
-}
-.navbar-timer
-{
-    width:150px;
-}
-.navbar-left-margin
-{
-    margin-left:20px;
-}
-.navbar-right-margin
-{
-    margin-right:20px;
-}
-@media (max-width:720px)
-{
-    .navbar
-    {
-        font-size:15px;
+  }
+  
+  .question-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-top: 60px;
+  }
+  
+  .slidebar-ele {
+    padding: 10px;
+   
+    margin-bottom: 15px;
+    font-size: 18px;
+    cursor: pointer;
+    border-bottom: 1px solid #ffffff1a;
+  }
+  
+  .slidebar-ele:hover {
+    background-color: #1a1a1a;
+  }
+  
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+
+  
+  /* Media Queries */
+  @media (max-width: 720px) {
+    .navbar {
+      font-size: 15px;
     }
-    .navbar-run,.navbar-submit,.navbar-timer
-    {
-        width:80px;
-        height:40px;
+  
+    .navbar-run, .navbar-submit, .navbar-timer {
+      width: 80px;
+      height: 40px;
     }
-    .navbar-timer
-    {
-        width:115px;
-        margin-left: 5px;
+  
+    .navbar-timer {
+      width: 115px;
+      margin-left: 5px;
     }
-    .navbar-contents
-    {
-        gap: 5px;
+  
+    .navbar-contents {
+      gap: 5px;
     }
-    .navbar-name
-    {
-        display: grid;
-        justify-content: center;
-        gap: 0px;
-        margin-left: 10px;
+  
+    .navbar-name {
+      gap: 0px;
     }
-}
-@media(max-width:440px)
-{
-    .navbar-timer
-    {
-        width: 100px;
-        margin-left : 0;
+  }
+  
+  @media (max-width: 440px) {
+    .navbar-timer {
+      width: 100px;
+      margin-left: 0;
     }
-}
+  }
