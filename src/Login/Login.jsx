@@ -27,101 +27,103 @@ function Login() {
   };
 
   return (
-    <div className="login-container">
-      <img src={logo} alt="Logo" /> {/* Corrected image tag */}
-      <h2>Student: Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name:</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter the Name:"
-            required
-          />
-        </div>
-        <div>
-          <label>
-            Password:
+    <div className="page-container">
+      <div className="login-container">
+        <img src={logo} alt="Logo" /> {/* Corrected image tag */}
+        <h2>Student Login</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-field">
+            <label >Name :</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter the Name"
+              required
+            />
+          </div>
+          <div className="form-field">
+            <label>Password :</label>
             <div className="password-eye-container">
               <input
                 type={d ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter the Password:"
+                placeholder="Enter the Password"
                 required
               />
               {d ? (
                 <FaEye
                   className="eyes-login"
+                  color="white"
                   onClick={() => setDisplay(false)}
                 />
               ) : (
                 <FaEyeSlash
                   className="eyes-login"
+                  color="white"
                   onClick={() => setDisplay(true)}
                 />
               )}
             </div>
-          </label>
-        </div>
-        <div className="display-flex">
-          <div>
-            <label>Roll No. :</label>
+          </div>
+          <div className="display-flex">
+            <div className="form-field">
+              <label>Roll Number :</label>
+              <input
+                type="text"
+                value={rollno}
+                onChange={(e) => setRollNo(e.target.value)}
+                placeholder="Ex. IT-2K21-xx"
+                required
+              />
+            </div>
+            <div className="form-field">
+              <label>Enrollment Number :</label>
+              <input
+                type="text"
+                value={enrollno}
+                onChange={(e) => setEnrollNo(e.target.value)}
+                placeholder="Ex. DExxxxxxx"
+                required
+              />
+            </div>
+          </div>
+          <div className="display-flex">
+            <div className="form-field">
+              <label>Subject Code :</label>
+              <input
+                type="text"
+                value={subcode}
+                onChange={(e) => setSubcode(e.target.value)}
+                placeholder="Ex. IT-xxx"
+                required
+              />
+            </div>
+            <div className="form-field">
+              <label>Subject :</label>
+              <input
+                type="text"
+                value={subname}
+                onChange={(e) => setSubname(e.target.value)}
+                placeholder="Enter the Subject"
+                required
+              />
+            </div>
+          </div>
+          <div className="form-field">
+            <label>Date :</label>
             <input
-              type="text"
-              value={rollno}
-              onChange={(e) => setRollNo(e.target.value)}
-              placeholder="Enter the Roll No:"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              style={{ colorScheme: "dark" }}
               required
             />
           </div>
-          <div>
-            <label>Enrollment No. :</label>
-            <input
-              type="text"
-              value={enrollno}
-              onChange={(e) => setEnrollNo(e.target.value)}
-              placeholder="Enter the Enrollment No:"
-              required
-            />
-          </div>
-        </div>
-        <div className="display-flex">
-          <div>
-            <label>Subject Code:</label>
-            <input
-              type="text"
-              value={subcode}
-              onChange={(e) => setSubcode(e.target.value)}
-              placeholder="Enter the Subject Code:"
-              required
-            />
-          </div>
-          <div>
-            <label>Subject:</label>
-            <input
-              type="text"
-              value={subname}
-              onChange={(e) => setSubname(e.target.value)}
-              placeholder="Enter the Subject:"
-              required
-            />
-          </div>
-        </div>
-        <div>
-          <label>Date:</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            style={{ colorScheme: "dark" }}
-            required
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
+          <button type="submit">Login</button>
+        </form>
+      </div>
     </div>
   );
 }

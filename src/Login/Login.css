@@ -1,9 +1,14 @@
 body ::placeholder {
   color: white;
 }
-body {
-  height: 100vh;
-  margin: 0;
+.page-container{
+  display: flex;
+  justify-content: center;
+  background-color: #1a1a1a;
+  align-items: center;
+  position: relative;
+  min-height: 100vh;
+  
 }
 .password-eye-container {
   position: relative;
@@ -15,6 +20,7 @@ body {
 .display-flex div {
   width: 225px;
 }
+
 .display-flex div:nth-child(even) {
   margin-right: 13px;
 }
@@ -34,16 +40,14 @@ body {
   border-radius: 8px;
   background-color: #282828;
   box-shadow: 0 0 10px 0 white;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  align-self: center;
+  position: relative;
+  justify-content: center;
 }
 
 .login-container img {
   width: 100px;
   height: 100px;
-  margin-bottom: 20px;
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -51,7 +55,6 @@ body {
 
 .login-container h2 {
   text-align: center;
-  margin-bottom: 20px;
   color: #fffcfc;
 }
 
@@ -61,7 +64,7 @@ body {
 }
 
 .login-container label {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   color: #fffcfc;
 }
 
@@ -88,6 +91,11 @@ body {
 
 .login-container button:hover {
   background-color: #45a049;
+}
+
+.form-field{
+  display: flex;
+  flex-direction: column;
 }
 
 @media (max-width: 720px) {
