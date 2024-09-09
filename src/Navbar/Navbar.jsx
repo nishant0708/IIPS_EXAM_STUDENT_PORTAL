@@ -1,16 +1,36 @@
-import React, { useState } from "react";
-import { FaPlay, FaBars} from "react-icons/fa6";
+import React, { useState, useEffect } from "react";
+import { FaPlay, FaBars } from "react-icons/fa6";
 import { FcUpload } from "react-icons/fc";
 import { CgSandClock } from "react-icons/cg";
-import "./Navbar.css";
 import { RxCross2 } from "react-icons/rx";
+import "./Navbar.css";
 
 const Navbar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(3600); // Set sample time as 1 hour (3600 seconds)
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+
+  // Format seconds into hh:mm:ss
+  const formatTime = (seconds) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hrs.toString().padStart(2, "0")} : ${mins
+      .toString()
+      .padStart(2, "0")} : ${secs.toString().padStart(2, "0")}`;
+  };
+
+  // Update the timer every second
+  useEffect(() => {
+    const countdown = setInterval(() => {
+      setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(countdown); // Cleanup interval on component unmount
+  }, []);
 
   return (
     <>
@@ -35,11 +55,11 @@ const Navbar = () => {
         </div>
         <div className="navbar-timer navbar-right-margin">
           <CgSandClock />
-          <p>00 : 00 : 00</p>
+          <p>{formatTime(timeLeft)}</p>
         </div>
       </div>
       <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
-        <RxCross2  onClick={toggleSidebar} className="slidebar-back-icon" />
+        <RxCross2 onClick={toggleSidebar} className="slidebar-back-icon" />
         <ul className="question-list">
           <div className="slidebar-ele">Question 1</div>
           <div className="slidebar-ele">Question 2</div>
