@@ -12,18 +12,39 @@ function Login() {
   const [subname, setSubname] = useState("");
   const [className, setClassName] = useState(""); // New field
   const [semester, setSemester] = useState(""); // New field
-
   const [d, setDisplay] = useState(false);
+
+  // Function to check if the roll number is in the correct format
+  const validateRollNo = (rollno) => {
+    const rollNoPattern = /^[A-Z]{2}-\d{1}[A-Z]{1}\d{2}-\d{2}$/;
+    return rollNoPattern.test(rollno);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (name && password && rollno && enrollno && subcode && subname && className && semester) {
+    if (
+      name &&
+      password &&
+      rollno &&
+      enrollno &&
+      subcode &&
+      subname &&
+      className &&
+      semester
+    ) {
+      if (!validateRollNo(rollno)) {
+        alert(
+          "Roll Number is in an incorrect format. It should be like IT-2K21-35."
+        );
+        return;
+      }
+
       try {
-        const response = await fetch('http://localhost:5000/student/login', {
-          method: 'POST',
+        const response = await fetch("http://localhost:5000/student/login", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             name,
@@ -32,22 +53,22 @@ function Login() {
             enrollno,
             subcode,
             subname,
-            className, // Include the new field in the request
-            semester,  // Include the new field in the request
+            className,
+            semester,
           }),
         });
 
         if (response.ok) {
           const data = await response.json();
           alert("Login successful!");
-          console.log('Paper:', data.paper);
-          console.log('Questions:', data.questions);
+          console.log("Paper:", data.paper);
+          console.log("Questions:", data.questions);
         } else {
           const errorData = await response.json();
           alert(errorData.message);
         }
       } catch (error) {
-        alert('An error occurred during login.');
+        alert("An error occurred during login.");
       }
     } else {
       alert("Please enter all fields!!!");
@@ -65,18 +86,21 @@ function Login() {
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value.toUpperCase())}
               placeholder="Enter the Name"
               required
             />
           </div>
           <div className="form-field">
-            <label>Password :</label>
-            <div className="password-eye-container">
-              <input
+            <label>Password : <br/>
+             
+            <span className="pass-warn">*Your password is the first 4 letters of your name and last 4 digits of your phone number.</span>
+              
+              </label>
+            <div className="password-eye-container">              <input
                 type={d ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value.toUpperCase())}
                 placeholder="Enter the Password"
                 required
               />
@@ -93,6 +117,7 @@ function Login() {
                   onClick={() => setDisplay(true)}
                 />
               )}
+              
             </div>
           </div>
           <div className="display-flex">
@@ -101,8 +126,8 @@ function Login() {
               <input
                 type="text"
                 value={rollno}
-                onChange={(e) => setRollNo(e.target.value)}
-                placeholder="Ex. IT-2K21-xx"
+                onChange={(e) => setRollNo(e.target.value.toUpperCase())}
+                placeholder="Ex. IT-2K21-35"
                 required
               />
             </div>
@@ -111,7 +136,7 @@ function Login() {
               <input
                 type="text"
                 value={enrollno}
-                onChange={(e) => setEnrollNo(e.target.value)}
+                onChange={(e) => setEnrollNo(e.target.value.toUpperCase())}
                 placeholder="Ex. DExxxxxxx"
                 required
               />
@@ -123,7 +148,7 @@ function Login() {
               <input
                 type="text"
                 value={subcode}
-                onChange={(e) => setSubcode(e.target.value)}
+                onChange={(e) => setSubcode(e.target.value.toUpperCase())}
                 placeholder="Ex. IT-xxx"
                 required
               />
@@ -133,38 +158,40 @@ function Login() {
               <input
                 type="text"
                 value={subname}
-                onChange={(e) => setSubname(e.target.value)}
+                onChange={(e) => setSubname(e.target.value.toUpperCase())}
                 placeholder="Enter the Subject"
                 required
               />
             </div>
           </div>
           <div className="display-flex">
-          <div className="form-field">
-            <label>Class :</label>
-            <select
-              value={className}
-              onChange={(e) => setClassName(e.target.value)}
-              required
-            >
-              <option value="">Select Class</option>
-              <option value="Mtech">MTech</option>
-              <option value="MCA">MCA</option>
-            </select>
-          </div>
-          <div className="form-field">
-            <label>Semester :</label>
-            <select
-              value={semester}
-              onChange={(e) => setSemester(e.target.value)}
-              required
-            >
-              <option value="">Select Semester</option>
-              {Array.from({ length: 10 }, (_, i) => i + 1).map(sem => (
-                <option key={sem} value={sem}>{sem}</option>
-              ))}
-            </select>
-          </div>
+            <div className="form-field">
+              <label>Class :</label>
+              <select
+                value={className}
+                onChange={(e) => setClassName(e.target.value.toUpperCase())}
+                required
+              >
+                <option value="">Select Class</option>
+                <option value="MTECH">MTech</option>
+                <option value="MCA">MCA</option>
+              </select>
+            </div>
+            <div className="form-field">
+              <label>Semester :</label>
+              <select
+                value={semester}
+                onChange={(e) => setSemester(e.target.value)}
+                required
+              >
+                <option value="">Select Semester</option>
+                {Array.from({ length: 10 }, (_, i) => i + 1).map((sem) => (
+                  <option key={sem} value={sem}>
+                    {sem}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           <button type="submit">Login</button>
         </form>

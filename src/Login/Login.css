@@ -78,6 +78,9 @@ body ::placeholder {
   background-color: #6e6e6e;
   color: white;
 }
+.login-container ::placeholder {
+  color: #ccc;
+}
 .login-container select{
   padding: 10px;
   margin-bottom: 20px;
@@ -116,6 +119,10 @@ body ::placeholder {
 .form-field{
   display: flex;
   flex-direction: column;
+}
+.pass-warn{
+  color: red;
+  font-size: 12px;
 }
 
 @media (max-width: 720px) {
