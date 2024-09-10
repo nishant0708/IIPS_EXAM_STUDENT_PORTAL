@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import "./Login.css"; // Import the CSS file
-import logo from "../assets/iips_logo2.png"; // Corrected the import statement
-import { FaEye } from "react-icons/fa6";
-import { FaEyeSlash } from "react-icons/fa6";
+import "./Login.css";
+import logo from "../assets/iips_logo2.png";
+import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
 function Login() {
   const [name, setName] = useState("");
@@ -11,16 +10,45 @@ function Login() {
   const [enrollno, setEnrollNo] = useState("");
   const [subcode, setSubcode] = useState("");
   const [subname, setSubname] = useState("");
-  const [date, setDate] = useState("");
+  const [className, setClassName] = useState(""); // New field
+  const [semester, setSemester] = useState(""); // New field
+
   const [d, setDisplay] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Simulate a login process
-    if (name && password && rollno && enrollno && subcode && subname && date) {
-      alert("Login successful!");
-      // Proceed with your login logic here
+    if (name && password && rollno && enrollno && subcode && subname && className && semester) {
+      try {
+        const response = await fetch('http://localhost:5000/student/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name,
+            password,
+            rollno,
+            enrollno,
+            subcode,
+            subname,
+            className, // Include the new field in the request
+            semester,  // Include the new field in the request
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          alert("Login successful!");
+          console.log('Paper:', data.paper);
+          console.log('Questions:', data.questions);
+        } else {
+          const errorData = await response.json();
+          alert(errorData.message);
+        }
+      } catch (error) {
+        alert('An error occurred during login.');
+      }
     } else {
       alert("Please enter all fields!!!");
     }
@@ -29,11 +57,11 @@ function Login() {
   return (
     <div className="page-container">
       <div className="login-container">
-        <img src={logo} alt="Logo" /> {/* Corrected image tag */}
+        <img src={logo} alt="Logo" />
         <h2>Student Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-field">
-            <label >Name :</label>
+            <label>Name :</label>
             <input
               type="text"
               value={name}
@@ -111,15 +139,32 @@ function Login() {
               />
             </div>
           </div>
+          <div className="display-flex">
           <div className="form-field">
-            <label>Date :</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              style={{ colorScheme: "dark" }}
+            <label>Class :</label>
+            <select
+              value={className}
+              onChange={(e) => setClassName(e.target.value)}
               required
-            />
+            >
+              <option value="">Select Class</option>
+              <option value="Mtech">MTech</option>
+              <option value="MCA">MCA</option>
+            </select>
+          </div>
+          <div className="form-field">
+            <label>Semester :</label>
+            <select
+              value={semester}
+              onChange={(e) => setSemester(e.target.value)}
+              required
+            >
+              <option value="">Select Semester</option>
+              {Array.from({ length: 10 }, (_, i) => i + 1).map(sem => (
+                <option key={sem} value={sem}>{sem}</option>
+              ))}
+            </select>
+          </div>
           </div>
           <button type="submit">Login</button>
         </form>
