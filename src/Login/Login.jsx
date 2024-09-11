@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; 
 import "./Login.css";
 import logo from "../assets/iips_logo2.png";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
+import AlertModal from "../AlertModal/AlertModal";
+
 
 function Login() {
   const [name, setName] = useState("");
@@ -13,6 +16,23 @@ function Login() {
   const [className, setClassName] = useState(""); // New field
   const [semester, setSemester] = useState(""); // New field
   const [d, setDisplay] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false); // State to control modal visibility
+  const [modalMessage, setModalMessage] = useState(""); // State to store modal message
+  const [isError, setIsError] = useState(false); // State to track if the modal is for an error
+
+  const navigate = useNavigate(); // Hook to navigate programmatically
+
+  // Automatically navigate to /rules if studentId, paperId, and teacherId exist in localStorage
+  useEffect(() => {
+    const studentId = localStorage.getItem("studentId");
+    const paperId = localStorage.getItem("paperId");
+    const teacherId = localStorage.getItem("teacherId");
+
+    if (studentId && paperId && teacherId) {
+      // Redirect to /rules if all IDs are present and not undefined or null
+      navigate("/rules");
+    }
+  }, [navigate]);
 
   // Function to check if the roll number is in the correct format
   const validateRollNo = (rollno) => {
@@ -34,9 +54,9 @@ function Login() {
       semester
     ) {
       if (!validateRollNo(rollno)) {
-        alert(
-          "Roll Number is in an incorrect format. It should be like IT-2K21-35."
-        );
+        setModalMessage("Roll Number is in an incorrect format. It should be like IT-2K21-35.");
+        setIsError(true);
+        setModalIsOpen(true);
         return;
       }
 
@@ -60,18 +80,35 @@ function Login() {
 
         if (response.ok) {
           const data = await response.json();
-          alert("Login successful!");
-          console.log("Paper:", data.paper);
-          console.log("Questions:", data.questions);
+          localStorage.setItem("paperId", data.paperId);
+          localStorage.setItem("studentId", data.studentId);
+          localStorage.setItem("teacherId", data.teacherId);
+
+          // Show success modal and redirect to /rules
+          setModalMessage("Login successful!");
+          setIsError(false);
+          setModalIsOpen(true);
+          
+          // Redirect to /rules after the modal closes
+          setTimeout(() => {
+            setModalIsOpen(false);
+            navigate("/rules");
+          }, 2000);
         } else {
           const errorData = await response.json();
-          alert(errorData.message);
+          setModalMessage(errorData.message);
+          setIsError(true);
+          setModalIsOpen(true);
         }
       } catch (error) {
-        alert("An error occurred during login.");
+        setModalMessage("An error occurred during login.");
+        setIsError(true);
+        setModalIsOpen(true);
       }
     } else {
-      alert("Please enter all fields!!!");
+      setModalMessage("Please enter all fields!!!");
+      setIsError(true);
+      setModalIsOpen(true);
     }
   };
 
@@ -93,11 +130,10 @@ function Login() {
           </div>
           <div className="form-field">
             <label>Password : <br/>
-             
-            <span className="pass-warn">*Your password is the first 4 letters of your name and last 4 digits of your phone number.</span>
-              
-              </label>
-            <div className="password-eye-container">              <input
+              <span className="pass-warn">*Your password is the first 4 letters of your name and last 4 digits of your phone number.</span>
+            </label>
+            <div className="password-eye-container">
+              <input
                 type={d ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value.toUpperCase())}
@@ -117,7 +153,6 @@ function Login() {
                   onClick={() => setDisplay(true)}
                 />
               )}
-              
             </div>
           </div>
           <div className="display-flex">
@@ -195,6 +230,14 @@ function Login() {
           </div>
           <button type="submit">Login</button>
         </form>
+
+        {/* Alert Modal */}
+        <AlertModal
+          isOpen={modalIsOpen}
+          onClose={() => setModalIsOpen(false)}
+          message={modalMessage}
+          iserror={isError}
+        />
       </div>
     </div>
   );

@@ -26,8 +26,8 @@ body ::placeholder {
 }
 .eyes-login {
   position: absolute;
-  right: 10px;
-  top: 12px;
+  right: 19px;
+  top: 9px;
 }
 .eyes-login:hover {
   cursor: pointer;
@@ -56,6 +56,7 @@ body ::placeholder {
 .login-container h2 {
   text-align: center;
   color: #fffcfc;
+  margin: 10px;
 }
 
 .login-container form {
@@ -65,12 +66,13 @@ body ::placeholder {
 
 .login-container label {
   margin-bottom: 6px;
+  font-size: 16px;
   color: #fffcfc;
 }
 
 .login-container input {
-  padding: 10px;
-  margin-bottom: 20px;
+  padding: 5px;
+  margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 16px;
@@ -82,8 +84,8 @@ body ::placeholder {
   color: #ccc;
 }
 .login-container select{
-  padding: 10px;
-  margin-bottom: 20px;
+  padding: 5px;
+  margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 16px;
@@ -108,6 +110,7 @@ body ::placeholder {
   border-radius: 4px;
   background-color: #4caf50;
   color: white;
+  margin-top: 10px;
   font-size: 16px;
   cursor: pointer;
 }

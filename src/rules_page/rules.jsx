@@ -1,57 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './rules.css'; 
+import axios from 'axios'; // For API calls
+import './rules.css';
 
 const RulesPage = () => {
   const navigate = useNavigate();
   const [isChecked, setIsChecked] = useState(false);
-  const [startTime, setStartTime] = useState(null); // Start time fetched from the server
-  const [currentTime, setCurrentTime] = useState(new Date()); // Current time
-  const [timeRemaining, setTimeRemaining] = useState(0); // Countdown time in seconds
-  const [timerActive, setTimerActive] = useState(false); // To track if we are waiting for start time
+  const [startTime, setStartTime] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [timerActive, setTimerActive] = useState(false);
+  const [paper ,setpaper] = useState("");
+  const paperId = localStorage.getItem("paperId"); 
 
-  // Example array containing exam information
-  const examDetails = {
-    totalQuestions: 10,
-    marksPerQuestion: 5,
-    totalMarks: 50,
-    durationMinutes: 60, // Paper duration in minutes
+  // Fetch paper details from API
+  const fetchPaperDetails = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/paper/getReadyPaperDetailsByPaperId', { paperId });
+     setpaper( response.data[0]); 
+
+      // Extract the start time from the fetched data
+      const fetchedStartTime = new Date(paper.startTime);
+      setStartTime(fetchedStartTime);
+    } catch (error) {
+      console.error('Error fetching paper details:', error);
+      alert('Failed to load paper details');
+    }
   };
 
   useEffect(() => {
-    // Simulate fetching the start time (for now, 1 minute from now)
-    const fetchStartTime = () => {
-      const fetchedStartTime = new Date();
-      fetchedStartTime.setMinutes(fetchedStartTime.getMinutes() + 1); // Start time set 1 minute from now
-      setStartTime(fetchedStartTime);
-    };
+    fetchPaperDetails(); // Fetch paper details on component mount
 
-    fetchStartTime();
-
-    // Update current time and calculate time remaining every second
+    // Update current time every second
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
-    return () => clearInterval(timer); // Cleanup on unmount
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
     if (startTime && currentTime) {
-      const timeDiff = (startTime - currentTime) / 1000; // Time difference in seconds
+      const timeDiff = (startTime - currentTime) / 1000; // Difference in seconds
       if (timeDiff > 0) {
-        setTimeRemaining(timeDiff); 
-        setTimerActive(true); 
+        setTimeRemaining(timeDiff); // Update time remaining
+        setTimerActive(true); // Disable start button until start time is reached
       } else {
-        setTimerActive(false); 
-        setTimeRemaining(0); 
+        setTimerActive(false); // Enable start button once start time is reached
+        setTimeRemaining(0);
       }
     }
   }, [currentTime, startTime]);
 
   const handleNextClick = () => {
     if (isChecked && !timerActive) {
-      navigate('/compiler'); 
+      navigate('/compiler'); // Redirect to the compiler page
     } else if (!isChecked) {
       alert('Please accept the rules before proceeding.');
     }
@@ -72,12 +75,12 @@ const RulesPage = () => {
     <div className="rules-container">
       <div className="rules_title">Test Guidelines</div>
       <div className="rules-list">
-         <div className="rules_item">
-          1. <strong>Paper Details:</strong> The test contains {examDetails.totalQuestions} questions, each carrying {examDetails.marksPerQuestion} marks. The paper is worth a total of {examDetails.totalMarks} marks and should be completed in {examDetails.durationMinutes} minutes.
+        <div className="rules_item">
+          1. <strong>Paper Details:</strong> The paper is worth a total of {paper.marks} marks and should be completed in {paper?.duration?.hours} hours and {paper?.duration.minutes} minutes.
         </div>
         <div className="rules_item">
           2. <strong>Camera and Microphone:</strong> Your camera and microphone must remain on at all times during the test. The test is being monitored, and you may be disqualified if there is any suspicious activity.
-         </div>
+        </div>
         <div className="rules_item">
           3. <strong>No External Help:</strong> You are not allowed to consult any materials or external devices (such as phones, tablets, or other computers) during the test.
         </div>
@@ -90,14 +93,12 @@ const RulesPage = () => {
         <div className="rules_item">
           6. <strong>Internet Connection:</strong> Ensure a stable internet connection throughout the test. Any disconnection may affect your test and could lead to disqualification.
         </div>
-       <div className="rules_item">
+        <div className="rules_item">
           7. <strong>Termination Warning:</strong> The teacher or invigilator reserves the right to terminate your test if there is any suspicious behavior, such as leaving the test area or engaging with other individuals.
         </div>
         <div className="rules_item">
           8. <strong>Timing:</strong> Complete the test within the given time limit. Failure to submit within the allotted time will result in the test being automatically submitted.
         </div>
-        {/* New rule dynamically generated based on examDetails */}
-        
       </div>
 
       <div className="checkbox-container">
