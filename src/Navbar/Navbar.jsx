@@ -3,11 +3,13 @@ import { FaPlay, FaBars } from "react-icons/fa6";
 import { FcUpload } from "react-icons/fc";
 import { CgSandClock } from "react-icons/cg";
 import { RxCross2 } from "react-icons/rx";
+import axios from "axios"; // For API call
 import "./Navbar.css";
 
 const Navbar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(3600); // Set sample time as 1 hour (3600 seconds)
+  const [timeLeft, setTimeLeft] = useState(0); // Initially, time left is 0
+  const paperId = localStorage.getItem("paperId"); // Assuming paperId is stored in local storage
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -23,8 +25,25 @@ const Navbar = () => {
       .padStart(2, "0")} : ${secs.toString().padStart(2, "0")}`;
   };
 
-  // Update the timer every second
+  // Fetch paper details from API and calculate remaining time
+  const fetchPaperDetails = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/paper/getReadyPaperDetailsByPaperId', { paperId });
+      const paper = response.data[0]; // Assuming the paper data is returned in an array
+      const endTime = new Date(paper.endTime); // Fetch and convert the endTime to Date object
+      const currentTime = new Date(); // Get current time
+      
+      const remainingTime = Math.floor((endTime - currentTime) / 1000); // Remaining time in seconds
+      setTimeLeft(remainingTime > 0 ? remainingTime : 0); // Set the remaining time or 0 if the time has passed
+    } catch (error) {
+      console.error("Error fetching paper details:", error);
+    }
+  };
+
   useEffect(() => {
+    fetchPaperDetails(); // Fetch paper details on component mount
+
+    // Update the timer every second
     const countdown = setInterval(() => {
       setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
     }, 1000);

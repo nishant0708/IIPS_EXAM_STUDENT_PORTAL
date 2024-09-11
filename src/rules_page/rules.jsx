@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // For API calls
+import axios from 'axios';
 import './rules.css';
 
 const RulesPage = () => {
@@ -10,17 +10,17 @@ const RulesPage = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
-  const [paper ,setpaper] = useState("");
-  const paperId = localStorage.getItem("paperId"); 
+  const [paper, setPaper] = useState({});
+  const paperId = localStorage.getItem('paperId');
 
   // Fetch paper details from API
   const fetchPaperDetails = async () => {
     try {
       const response = await axios.post('http://localhost:5000/paper/getReadyPaperDetailsByPaperId', { paperId });
-     setpaper( response.data[0]); 
+      setPaper(response.data[0]);
 
-      // Extract the start time from the fetched data
-      const fetchedStartTime = new Date(paper.startTime);
+      // Extract the start time from the fetched data and adjust to local timezone
+      const fetchedStartTime = new Date(response.data[0].startTime);
       setStartTime(fetchedStartTime);
     } catch (error) {
       console.error('Error fetching paper details:', error);
@@ -41,7 +41,7 @@ const RulesPage = () => {
 
   useEffect(() => {
     if (startTime && currentTime) {
-      const timeDiff = (startTime - currentTime) / 1000; // Difference in seconds
+      const timeDiff = (startTime.getTime() - currentTime.getTime()) / 1000; // Difference in seconds
       if (timeDiff > 0) {
         setTimeRemaining(timeDiff); // Update time remaining
         setTimerActive(true); // Disable start button until start time is reached
@@ -52,8 +52,16 @@ const RulesPage = () => {
     }
   }, [currentTime, startTime]);
 
+  // Check if 'start' is present in local storage and redirect automatically
+  useEffect(() => {
+    if (localStorage.getItem('start')) {
+      navigate('/compiler');
+    }
+  }, [navigate]);
+
   const handleNextClick = () => {
     if (isChecked && !timerActive) {
+      localStorage.setItem('start', 'true'); // Set 'start' in local storage
       navigate('/compiler'); // Redirect to the compiler page
     } else if (!isChecked) {
       alert('Please accept the rules before proceeding.');
@@ -76,7 +84,7 @@ const RulesPage = () => {
       <div className="rules_title">Test Guidelines</div>
       <div className="rules-list">
         <div className="rules_item">
-          1. <strong>Paper Details:</strong> The paper is worth a total of {paper.marks} marks and should be completed in {paper?.duration?.hours} hours and {paper?.duration.minutes} minutes.
+          1. <strong>Paper Details:</strong> The paper is worth a total of <b>{paper.marks} marks </b> and should be completed in <b>{paper?.duration?.hours} hours and {paper?.duration?.minutes} minutes.</b>
         </div>
         <div className="rules_item">
           2. <strong>Camera and Microphone:</strong> Your camera and microphone must remain on at all times during the test. The test is being monitored, and you may be disqualified if there is any suspicious activity.
@@ -102,11 +110,11 @@ const RulesPage = () => {
       </div>
 
       <div className="checkbox-container">
-        <input 
-          type="checkbox" 
-          id="accept-rules" 
-          checked={isChecked} 
-          onChange={handleCheckboxChange} 
+        <input
+          type="checkbox"
+          id="accept-rules"
+          checked={isChecked}
+          onChange={handleCheckboxChange}
         />
         <label className="rules_line" htmlFor="accept-rules">I have read and accept the rules</label>
       </div>
@@ -115,9 +123,9 @@ const RulesPage = () => {
         {timerActive ? `Test starts in: ${formatCountdown(timeRemaining)}` : 'You can start the test now.'}
       </div>
 
-      <button 
-        className="next-button rules_line" 
-        onClick={handleNextClick} 
+      <button
+        className="next-button rules_line"
+        onClick={handleNextClick}
         disabled={!isChecked || timerActive}
       >
         Start Now
