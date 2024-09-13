@@ -18,10 +18,21 @@
   align-items: center;
   gap: 5px;
   height: 50px;
+  position: relative;
 }
 .questions-content {
-  padding-left: 10px;
+  padding-left: 20px;
   padding-top: 10px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  position: relative;
+}
+.question_marks_body{
+  position: absolute;
+  top: -12px;
+  font-size: 22px;
+  right: 20px;
+  color: rgb(193, 116, 22);
 }
 .content-heading {
   font-weight: 600;
@@ -29,5 +40,5 @@
 }
 .questions-image {
   max-width: 500px;
-  width: 90%;
+  width: 80%;
 }

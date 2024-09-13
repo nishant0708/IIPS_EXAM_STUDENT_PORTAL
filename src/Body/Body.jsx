@@ -1,24 +1,37 @@
 import React from "react";
-import "flex-splitter-directive"
-import "flex-splitter-directive/styles.min.css"
+import PropTypes from "prop-types";
+import "flex-splitter-directive";
+import "flex-splitter-directive/styles.min.css";
 import Questions from "../Questions/Questions";
 import Editor from "../Editor/Editor";
 import Test from "../Test/Test";
 import "./Body.css";
-const Body=()=>
-{
-    return(
-        <>
-        <div className="compiler-body" data-flex-splitter-horizontal>
-            <Questions />
-            <div role="separator" tabIndex="1"></div>
-            <div className="body-contents" data-flex-splitter-vertical>
-                <Editor />
-                <div role="separator" tabIndex="1"></div>
-                <Test />
-            </div>
+
+const Body = ({ question }) => {
+  return (
+    <>
+      <div className="compiler-body" data-flex-splitter-horizontal>
+        {/* Pass the question as a prop to the Questions component */}
+        <Questions question={question} />
+        <div role="separator" tabIndex="1"></div>
+        <div className="body-contents" data-flex-splitter-vertical>
+          {/* Pass the question prop to the Editor component */}
+          <Editor question={question} />
+          <div role="separator" tabIndex="1"></div>
+          <Test />
         </div>
-        </>
-    );
-}
+      </div>
+    </>
+  );
+};
+
+// Define prop types for the Body component
+Body.propTypes = {
+  question: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    image: PropTypes.string,
+  }),
+};
+
 export default Body;

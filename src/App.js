@@ -9,9 +9,8 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        {/* -----------------------------------------------Compiler Component */}
-        <Route path="/compiler" element={<Compiler />} />
-        <Route path="/rules" element={<RulesPage/>} />
+        <Route path="/compiler/:questionId" element={<Compiler />} /> 
+        <Route path="/rules" element={<RulesPage />} />
       </Routes>
     </Router>
   );

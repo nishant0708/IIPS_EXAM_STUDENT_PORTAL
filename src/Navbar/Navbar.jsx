@@ -3,19 +3,22 @@ import { FaPlay, FaBars } from "react-icons/fa6";
 import { FcUpload } from "react-icons/fc";
 import { CgSandClock } from "react-icons/cg";
 import { RxCross2 } from "react-icons/rx";
-import axios from "axios"; // For API call
+import { useParams } from "react-router-dom"; // For fetching questionId from URL
+import axios from "axios";
 import "./Navbar.css";
 
 const Navbar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(0); // Initially, time left is 0
-  const paperId = localStorage.getItem("paperId"); // Assuming paperId is stored in local storage
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [studentDetails, setStudentDetails] = useState({ fullName: "", rollNumber: "" });
+  const paperId = localStorage.getItem("paperId");
+  const studentId = localStorage.getItem("studentId");
+  const { questionId } = useParams(); // Extract questionId from the URL
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Format seconds into hh:mm:ss
   const formatTime = (seconds) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -25,30 +28,55 @@ const Navbar = () => {
       .padStart(2, "0")} : ${secs.toString().padStart(2, "0")}`;
   };
 
-  // Fetch paper details from API and calculate remaining time
+  // Fetch paper details and calculate remaining time
   const fetchPaperDetails = async () => {
     try {
       const response = await axios.post('http://localhost:5000/paper/getReadyPaperDetailsByPaperId', { paperId });
-      const paper = response.data[0]; // Assuming the paper data is returned in an array
-      const endTime = new Date(paper.endTime); // Fetch and convert the endTime to Date object
-      const currentTime = new Date(); // Get current time
-      
-      const remainingTime = Math.floor((endTime - currentTime) / 1000); // Remaining time in seconds
-      setTimeLeft(remainingTime > 0 ? remainingTime : 0); // Set the remaining time or 0 if the time has passed
+      const paper = response.data[0];
+      const endTime = new Date(paper.endTime);
+      const currentTime = new Date();
+      const remainingTime = Math.floor((endTime - currentTime) / 1000);
+      setTimeLeft(remainingTime > 0 ? remainingTime : 0);
     } catch (error) {
       console.error("Error fetching paper details:", error);
     }
   };
 
-  useEffect(() => {
-    fetchPaperDetails(); // Fetch paper details on component mount
+  // Fetch student details using studentId
+  const fetchStudentDetails = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/student/getStudentDetailsByStudentId', { studentId });
+      const { student } = response.data;
+      setStudentDetails(student[0]); // Assuming student is an array, take the first element
+    } catch (error) {
+      console.error("Error fetching student details:", error);
+    }
+  };
 
-    // Update the timer every second
+  // Navigate to the next or previous question
+  const handleNavigation = async (direction) => {
+    try {
+      const response = await axios.post('http://localhost:5000/student/getQuestionNavigation', {
+        questionId,
+        direction,
+      });
+      const { question } = response.data;
+      // Update the URL with the new questionId (this requires proper routing setup)
+      window.location.href = `/compiler/${question._id}`;
+    } catch (error) {
+      console.error("Error navigating question:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPaperDetails();
+    fetchStudentDetails();
+
     const countdown = setInterval(() => {
       setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
     }, 1000);
 
-    return () => clearInterval(countdown); // Cleanup interval on component unmount
+    return () => clearInterval(countdown);
   }, []);
 
   return (
@@ -59,8 +87,8 @@ const Navbar = () => {
           <div className="problem-list-text">Problem List</div>
         </div>
         <div className="navbar-name">
-          <div>IT-2k21-35</div>
-          <div>Niko Vajradanti</div>
+          <div>{studentDetails.rollNumber}</div> {/* Display student roll number */}
+          <div>{studentDetails.fullName}</div>   {/* Display student name */}
         </div>
         <div className="navbar-contents">
           <div className="navbar-run">
@@ -76,6 +104,10 @@ const Navbar = () => {
           <CgSandClock />
           <p>{formatTime(timeLeft)}</p>
         </div>
+        <div className="question-navigation">
+        <button onClick={() => handleNavigation('previous')}>Previous</button>
+        <button onClick={() => handleNavigation('next')}>Next</button>
+      </div>
       </div>
       <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
         <RxCross2 onClick={toggleSidebar} className="slidebar-back-icon" />
@@ -85,8 +117,10 @@ const Navbar = () => {
           <div className="slidebar-ele">Question 3</div>
         </ul>
       </div>
-
       {sidebarOpen && <div className="overlay" onClick={toggleSidebar}></div>}
+
+      {/* Navigation Buttons */}
+     
     </>
   );
 };
