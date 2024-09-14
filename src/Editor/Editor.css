@@ -22,6 +22,7 @@
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   padding-left: 20px;
+  justify-content: space-between;
 }
 
 .editor-editor {
@@ -38,4 +39,30 @@
   bottom: 0;
   overflow-x: auto; /* Enable horizontal scrolling within Monaco */
   overflow-y: auto; /* Enable vertical scrolling within Monaco */
+}
+
+.editor-run
+{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: #4caf50;
+    width: 75px;
+    height: 35px;
+    justify-content: center;
+    border-radius: 10px;
+    margin-right: 25px;
+    font-size: medium;
+}
+.editor-run:hover
+{
+  cursor: pointer;
+  background-color: red;
+}
+.editor-code
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
 }

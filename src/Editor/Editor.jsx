@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import "./Editor.css";
 import { Editor as Ed } from "@monaco-editor/react";
 import { FaCode } from "react-icons/fa";
+import { FaPlay } from "react-icons/fa6";
 
 const Editor = ({ question }) => {
     const editorContainerRef = useRef(null);
@@ -37,8 +38,14 @@ const Editor = ({ question }) => {
     return (
         <div className="compiler-editor">
             <div className="editor-header">
-                <FaCode />
-            Code
+                <div className="editor-code">
+                    <FaCode/>
+                    <div>Code</div>
+                </div>
+                <div className="editor-run">
+                    <FaPlay size={15}/>
+                    <div>Run</div>
+                </div>
             </div>
             <div className="editor-editor" ref={editorContainerRef}>
                 <Ed
