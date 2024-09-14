@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { FaPlay, FaBars } from "react-icons/fa6";
-import { FcUpload } from "react-icons/fc";
+import { FaBars } from "react-icons/fa6";
+import { FaUpload } from "react-icons/fa";
 import { CgSandClock } from "react-icons/cg";
 import { RxCross2 } from "react-icons/rx";
 import { useParams } from "react-router-dom"; // For fetching questionId from URL
+import { FaChevronLeft } from "react-icons/fa";
+import { FaChevronRight } from "react-icons/fa";
 import axios from "axios";
 import "./Navbar.css";
 
@@ -87,28 +89,35 @@ const Navbar = () => {
           <div className="problem-list-text">Problem List</div>
         </div>
         <div className="navbar-name">
+          <div></div>
           <div>{studentDetails.rollNumber}</div> {/* Display student roll number */}
           <div>{studentDetails.fullName}</div>   {/* Display student name */}
         </div>
         <div className="navbar-contents">
-          <div className="navbar-run">
-            <FaPlay />
-            <p>Run</p>
+          <div className="navigation-display-flex">
+              <div>
+                <p onClick={() => handleNavigation('previous')}>
+                  <FaChevronLeft size={15}/>
+                  <div>Previous</div>
+                </p>
+              </div>
+              <div className="navbar-submit">
+                <FaUpload size={15}/>
+                <div>Submit</div>
+              </div>
+              <div>
+                <p onClick={() => handleNavigation('next')}>
+                  <div>Next</div>
+                  <FaChevronRight size={15}/>
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="navbar-submit">
-            <FcUpload />
-            <p>Submit</p>
+          <div className="navbar-timer navbar-right-margin">
+            <CgSandClock />
+            <p>{formatTime(timeLeft)}</p>
           </div>
         </div>
-        <div className="navbar-timer navbar-right-margin">
-          <CgSandClock />
-          <p>{formatTime(timeLeft)}</p>
-        </div>
-        <div className="question-navigation">
-        <button onClick={() => handleNavigation('previous')}>Previous</button>
-        <button onClick={() => handleNavigation('next')}>Next</button>
-      </div>
-      </div>
       <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
         <RxCross2 onClick={toggleSidebar} className="slidebar-back-icon" />
         <ul className="question-list">

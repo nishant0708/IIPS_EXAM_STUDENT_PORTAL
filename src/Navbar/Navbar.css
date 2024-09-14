@@ -38,23 +38,27 @@
     margin: 0 auto; /* Ensures the Run and Submit buttons are centered */
   }
   
-  .navbar-run, .navbar-submit, .navbar-timer  {
+  .navbar-submit, .navbar-timer  {
     display: flex;
     align-items: center;
     gap: 5px;
     background-color: #1a1a1a;
     width: 100px;
-    height: 50px;
     justify-content: center;
     border-radius: 10px;
+    border: 2px solid #1a1a1a;
   }
   
   .navbar-submit {
+    height: 40px;
     width: 125px;
+    background-color: #4caf50;
+    border-color: #4caf50;
   }
   
   .navbar-timer {
     width: 150px;
+    height: 50px;
   }
   
   .navbar-left-margin {
@@ -157,4 +161,37 @@
       width: 100px;
       margin-left: 0;
     }
+  }
+
+  .navigation-display-flex
+  {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      align-items: center;
+  }
+  .navigation-display-flex p
+  {
+    font-size: large;
+    background-color: #1a1a1a;
+    color: white;
+    border-radius: 10px;
+    border: 2px solid #1a1a1a;
+    width: 125px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+  .navigation-display-flex p:hover
+  {
+    background-color: #1a1a1a44;
+    cursor: pointer;
+  }
+  .navbar-submit:hover
+  {
+    cursor: pointer;
+    background-color: #4caf4f62;
+    border-color: #4caf4f62;
   }
