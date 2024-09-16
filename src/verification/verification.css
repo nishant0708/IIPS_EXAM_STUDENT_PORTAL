@@ -1,0 +1,65 @@
+.verification_container {
+    background-color: #1A1A1A;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.verification_instructions {
+    margin-bottom: 20px;
+}
+
+.verification_instructions_heading {
+    color: #Eff1f6bf;
+    font-size: 24px;
+}
+
+.verification_instructions_text {
+    font-size: 16px;
+}
+
+.verification_instructions_list {
+    list-style: none;
+    padding: 0;
+}
+
+.verification_instructions_list li {
+    margin-bottom: 8px;
+}
+
+.verification_webcam_heading {
+    color: #Eff1f6bf;
+    font-size: 20px;
+}
+
+.verification_webcam {
+    border: 2px solid #282828;
+    width: 640px;
+    height: 480px;
+    margin-top: 20px;
+}
+
+.verification_start_test_btn {
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.verification_start_test_btn:hover {
+    background-color: #218838;
+}
+
+.verification_test_status {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+}

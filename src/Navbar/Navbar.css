@@ -195,3 +195,10 @@
     background-color: #4caf4f62;
     border-color: #4caf4f62;
   }
+
+  .question-description
+  {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }

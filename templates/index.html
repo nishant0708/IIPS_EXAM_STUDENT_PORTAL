@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Monitoring</title>
+    <style>
+        body {
+            background-color: #1A1A1A;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        h1 {
+            color: #Eff1f6bf;
+        }
+        video {
+            border: 2px solid #282828;
+            width: 640px;
+            height: 480px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #test-status {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="instructions">
+        <h2>Instructions :</h2>
+        <p>Follow the steps below to ensure your webcam and audio are working properly:</p>
+        <ul>
+            <li>Allow webcam permission to check if your webcam is functioning.</li>
+            <li>Both the webcam and audio tests will be conducted automatically.</li>
+            <li>Once both tests are complete, you will be ready to take the test.</li>
+        </ul>
+    </div>
+
+
+    <h3>Webcam Feed</h3>
+    <video id="webcam" autoplay></video>
+
+    <button id="start-test-btn">Start Webcam and Audio Test</button>
+    <div id="test-status">Test Status: Not Started</div>
+
+    <script>
+        // Start webcam feed
+        const videoElement = document.getElementById('webcam');
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    videoElement.srcObject = stream;
+                })
+                .catch(function(error) {
+                    console.log("Error accessing the webcam: " + error);
+                });
+        }
+
+        // Handle the start test button
+        document.getElementById('start-test-btn').addEventListener('click', function() {
+            fetch('/start_test')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('test-status').textContent = 'Test Status: In Progress';
+                    // Check the test status periodically
+                    const intervalId = setInterval(() => {
+                        fetch('/check_test_status')
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.test_ready) {
+                                    document.getElementById('test-status').textContent = 'Test Status: Ready. You can start the test!';
+                                    clearInterval(intervalId);
+                                }
+                            });
+                    }, 1000);
+                });
+        });
+    </script>
+
+</body>
+</html>
