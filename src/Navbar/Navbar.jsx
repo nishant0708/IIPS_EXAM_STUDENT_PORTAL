@@ -14,6 +14,7 @@ const Navbar = () => {
   const [timeLeft, setTimeLeft] = useState(0);
   const [studentDetails, setStudentDetails] = useState({ fullName: "", rollNumber: "" });
   const paperId = localStorage.getItem("paperId");
+  const [questionList, setQuestionList] = useState([]);
   const studentId = localStorage.getItem("studentId");
   const { questionId } = useParams(); // Extract questionId from the URL
 
@@ -35,6 +36,7 @@ const Navbar = () => {
     try {
       const response = await axios.post('http://localhost:5000/paper/getReadyPaperDetailsByPaperId', { paperId });
       const paper = response.data[0];
+      // console.log(paper);
       const endTime = new Date(paper.endTime);
       const currentTime = new Date();
       const remainingTime = Math.floor((endTime - currentTime) / 1000);
@@ -43,6 +45,19 @@ const Navbar = () => {
       console.error("Error fetching paper details:", error);
     }
   };
+
+  const fetchQuestionDetails = async () => {
+    try {
+      let response = await axios.post('http://localhost:5000/student/getQuestionByPaperId', { paperId });
+      
+      let sortedQuestions = response.data.questions.sort((a, b) => a.marks - b.marks);
+  
+      setQuestionList(sortedQuestions);
+    } catch (error) {
+      console.error("Error fetching question details:", error);
+    }
+  };
+
 
   // Fetch student details using studentId
   const fetchStudentDetails = async () => {
@@ -73,13 +88,13 @@ const Navbar = () => {
   useEffect(() => {
     fetchPaperDetails();
     fetchStudentDetails();
-
+    fetchQuestionDetails();
     const countdown = setInterval(() => {
       setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
     }, 1000);
 
     return () => clearInterval(countdown);
-  }, []);
+  },[]);
 
   return (
     <>
@@ -121,9 +136,24 @@ const Navbar = () => {
       <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
         <RxCross2 onClick={toggleSidebar} className="slidebar-back-icon" />
         <ul className="question-list">
-          <div className="slidebar-ele">Question 1</div>
-          <div className="slidebar-ele">Question 2</div>
-          <div className="slidebar-ele">Question 3</div>
+          {
+            questionList.map((question,index=0) => {
+              return <div onClick={() => window.location.href = `/compiler/${question._id}`}
+              className="slidebar-ele" 
+              key={index}>
+              <span className="question-heading">
+                {question.questionheading}
+              </span>
+              <span style={{float:"right"}} className="question-marks">
+                Marks: {question.marks}
+              </span>
+              <p className="question-description">
+                {question.questionDescription}
+              </p>
+            </div>
+            })
+          }
+
         </ul>
       </div>
       {sidebarOpen && <div className="overlay" onClick={toggleSidebar}></div>}
