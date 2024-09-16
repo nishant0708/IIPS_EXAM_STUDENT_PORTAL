@@ -82,7 +82,7 @@ def record_audio(filename, duration=10, sample_rate=16000):
 # Function to start the webcam and audio test
 def run_tests():
     global test_ready
-    video_filename = os.path.join(MEDIA_DIR, 'test_video.avi')
+    video_filename = os.path.join(MEDIA_DIR, 'test_video.mp4')
     photo_filename = os.path.join(MEDIA_DIR, 'student_photo.jpg')
     audio_filename = os.path.join(MEDIA_DIR, 'test_audio.wav')
 

@@ -15,7 +15,7 @@ const Body = ({ question }) => {
         <Questions question={question} />
         <div role="separator" tabIndex="1"></div>
         <div className="body-contents" data-flex-splitter-vertical>
-          {/* Pass the question prop to the Editor component */}
+        
           <Editor question={question} />
           <div role="separator" tabIndex="1"></div>
           <Test />
