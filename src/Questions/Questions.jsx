@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { MdReportProblem } from "react-icons/md";
+import ReactMarkdown from "react-markdown";
 import "./Questions.css";
 
 const Questions = ({ question }) => {
@@ -27,7 +28,7 @@ const Questions = ({ question }) => {
       }
       observer.disconnect();
     };
-  }); // Empty dependency array ensures it runs once after the first render
+  }, []); // Empty dependency array ensures it runs once after the first render
 
   if (!question) {
     return <div>Loading question...</div>;
@@ -52,12 +53,9 @@ const Questions = ({ question }) => {
             <div className="questions-content">
               <div className="content-heading">{question.questionheading}</div>
               <br />
-              <div
-                className="content-body"
-                dangerouslySetInnerHTML={{
-                  __html: question.questionDescription,
-                }}
-              />
+              <ReactMarkdown className="content-body">
+                {question.questionDescription}
+              </ReactMarkdown>
               {question.image && (
                 <>
                   <br />
