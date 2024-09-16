@@ -11,7 +11,7 @@
 }
 .body-contents-small
 {
-    background-color: rgba(0, 255, 255, 0.363);
+    background-color:rgb(211 229 255 / 40%);
     border-radius: 10px;
     position: relative;
     margin-top: 9px;
@@ -22,5 +22,5 @@
     transform: rotate(90deg);
     position: absolute;
     top: 35%;
-    right: 10%;
+    right: 0%;
 }

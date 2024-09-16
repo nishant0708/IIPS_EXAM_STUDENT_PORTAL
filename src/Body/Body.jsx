@@ -35,8 +35,8 @@ const Body = ({ question }) => {
 
   return (
     <div className="compiler-body" data-flex-splitter-horizontal>
-      {/* Pass the question as a prop to the Questions component */}
       <Questions question={question} />
+
       <div role="separator" tabIndex="1"></div>
 
       {/* Conditionally render based on width */}
