@@ -9,3 +9,18 @@
     width: 28.5%;
     overflow-x: hidden;
 }
+.body-contents-small
+{
+    background-color: rgba(0, 255, 255, 0.363);
+    border-radius: 10px;
+    position: relative;
+    margin-top: 9px;
+}
+.body-contents-small p
+{
+    font-size: 50px;
+    transform: rotate(90deg);
+    position: absolute;
+    top: 35%;
+    right: 10%;
+}
