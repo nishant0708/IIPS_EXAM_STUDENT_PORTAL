@@ -10,6 +10,7 @@ import "./Body.css";
 const Body = ({ question }) => {
   const bodyContentsRef = useRef(null); // Reference for body-contents
   const [isSmallWidth, setIsSmallWidth] = useState(false); // State to track if width < 200px
+  const [output, setOutput] = useState("");  // State to store the output
 
   // useEffect to observe the width of body-contents
   useEffect(() => {
@@ -47,9 +48,11 @@ const Body = ({ question }) => {
         </div>
       ) : (
         <div className="body-contents" data-flex-splitter-vertical ref={bodyContentsRef}>
-          <Editor question={question} />
+          {/* Pass setOutput function to Editor to update the output */}
+          <Editor question={question} onOutput={setOutput} />
           <div role="separator" tabIndex="1"></div>
-          <Test />
+          {/* Pass the output state to the Test component */}
+          <Test output={output} />
         </div>
       )}
     </div>

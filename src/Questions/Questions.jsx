@@ -28,7 +28,7 @@ const Questions = ({ question }) => {
       }
       observer.disconnect();
     };
-  }, []); // Empty dependency array ensures it runs once after the first render
+  }); // Empty dependency array ensures it runs once after the first render
 
   if (!question) {
     return <div>Loading question...</div>;
