@@ -1,7 +1,7 @@
 .compiler-questions {
   width: 70%;
   height: 98%;
-  min-width: 150px;
+  min-width: 110px;
   max-width: 90vw;
   overflow-y: auto;
   background-color: #282828;
@@ -39,6 +39,27 @@
   font-size: xx-large;
 }
 .questions-image {
-  max-width: 500px;
-  width: 80%;
+  max-width: 300px;
+  object-fit: contain;
+  width: 100%;
+}
+.questions-small-content {
+  background-color:rgb(211 229 255 / 40%);
+  border-radius: 10px;
+  position: relative;
+  color: black;
+  width: 100%;
+  height: 100%;
+}
+
+.questions-small-content p {
+  margin: 0px;
+  font-size: 2rem;
+  text-wrap: nowrap;
+  transform: rotate(-90deg) translate(-50%, -50%);
+  position: absolute;
+  top: 45%;
+  font-weight: 600;
+  left: 60%;
+  transform-origin: left center;
 }

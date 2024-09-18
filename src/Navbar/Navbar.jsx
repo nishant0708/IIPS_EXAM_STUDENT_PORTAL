@@ -12,8 +12,12 @@ import "./Navbar.css";
 const Navbar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
-  const [studentDetails, setStudentDetails] = useState({ fullName: "", rollNumber: "" });
+  const [studentDetails, setStudentDetails] = useState({
+    fullName: "",
+    rollNumber: "",
+  });
   const paperId = localStorage.getItem("paperId");
+  const [questionList, setQuestionList] = useState([]);
   const studentId = localStorage.getItem("studentId");
   const { questionId } = useParams(); // Extract questionId from the URL
 
@@ -33,8 +37,12 @@ const Navbar = () => {
   // Fetch paper details and calculate remaining time
   const fetchPaperDetails = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/paper/getReadyPaperDetailsByPaperId', { paperId });
+      const response = await axios.post(
+        "http://localhost:5000/paper/getReadyPaperDetailsByPaperId",
+        { paperId }
+      );
       const paper = response.data[0];
+      // console.log(paper);
       const endTime = new Date(paper.endTime);
       const currentTime = new Date();
       const remainingTime = Math.floor((endTime - currentTime) / 1000);
@@ -44,10 +52,30 @@ const Navbar = () => {
     }
   };
 
+  const fetchQuestionDetails = async () => {
+    try {
+      let response = await axios.post(
+        "http://localhost:5000/student/getQuestionByPaperId",
+        { paperId }
+      );
+
+      let sortedQuestions = response.data.questions.sort(
+        (a, b) => a.marks - b.marks
+      );
+
+      setQuestionList(sortedQuestions);
+    } catch (error) {
+      console.error("Error fetching question details:", error);
+    }
+  };
+
   // Fetch student details using studentId
   const fetchStudentDetails = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/student/getStudentDetailsByStudentId', { studentId });
+      const response = await axios.post(
+        "http://localhost:5000/student/getStudentDetailsByStudentId",
+        { studentId }
+      );
       const { student } = response.data;
       setStudentDetails(student[0]); // Assuming student is an array, take the first element
     } catch (error) {
@@ -58,10 +86,13 @@ const Navbar = () => {
   // Navigate to the next or previous question
   const handleNavigation = async (direction) => {
     try {
-      const response = await axios.post('http://localhost:5000/student/getQuestionNavigation', {
-        questionId,
-        direction,
-      });
+      const response = await axios.post(
+        "http://localhost:5000/student/getQuestionNavigation",
+        {
+          questionId,
+          direction,
+        }
+      );
       const { question } = response.data;
       // Update the URL with the new questionId (this requires proper routing setup)
       window.location.href = `/compiler/${question._id}`;
@@ -73,7 +104,7 @@ const Navbar = () => {
   useEffect(() => {
     fetchPaperDetails();
     fetchStudentDetails();
-
+    fetchQuestionDetails();
     const countdown = setInterval(() => {
       setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
     }, 1000);
@@ -89,47 +120,66 @@ const Navbar = () => {
           <div className="problem-list-text">Problem List</div>
         </div>
         <div className="navbar-name">
-          <div></div>
-          <div>{studentDetails.rollNumber}</div> {/* Display student roll number */}
-          <div>{studentDetails.fullName}</div>   {/* Display student name */}
+          <div>{studentDetails.rollNumber}</div>{" "}
+          {/* Display student roll number */}
+          <div>{studentDetails.fullName}</div> {/* Display student name */}
         </div>
         <div className="navbar-contents">
           <div className="navigation-display-flex">
-              <div>
-                <p onClick={() => handleNavigation('previous')}>
-                  <FaChevronLeft size={15}/>
-                  <div>Previous</div>
-                </p>
-              </div>
-              <div className="navbar-submit">
-                <FaUpload size={15}/>
-                <div>Submit</div>
-              </div>
-              <div>
-                <p onClick={() => handleNavigation('next')}>
-                  <div>Next</div>
-                  <FaChevronRight size={15}/>
-                </p>
-              </div>
+            <div>
+              <p onClick={() => handleNavigation("previous")}>
+                <FaChevronLeft size={15} />
+                <div>Previous</div>
+              </p>
+            </div>
+            <div className="navbar-submit">
+              <FaUpload size={15} />
+              <div>Submit</div>
+            </div>
+            <div>
+              <p onClick={() => handleNavigation("next")}>
+                <div>Next</div>
+                <FaChevronRight size={15} />
+              </p>
             </div>
           </div>
-          <div className="navbar-timer navbar-right-margin">
-            <CgSandClock />
-            <p>{formatTime(timeLeft)}</p>
-          </div>
         </div>
+        <div className="navbar-timer navbar-right-margin">
+          <CgSandClock />
+          <p>{formatTime(timeLeft)}</p>
+        </div>
+      </div>
       <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
         <RxCross2 onClick={toggleSidebar} className="slidebar-back-icon" />
         <ul className="question-list">
-          <div className="slidebar-ele">Question 1</div>
-          <div className="slidebar-ele">Question 2</div>
-          <div className="slidebar-ele">Question 3</div>
+          {questionList.map((question, index = 0) => {
+            return (
+              <div
+                onClick={() =>
+                  (window.location.href = `/compiler/${question._id}`)
+                }
+                className="slidebar-ele"
+                key={index}
+              >
+                <span
+                  style={{ float: "right" }}
+                  className="navbar_question-marks"
+                >
+                  Marks: {question?.marks}
+                </span>
+                <p className="navbar_question-description">
+                  {question?.questionheading
+                    ? question?.questionheading
+                    : question?.questionDescription}
+                </p>
+              </div>
+            );
+          })}
         </ul>
       </div>
       {sidebarOpen && <div className="overlay" onClick={toggleSidebar}></div>}
 
       {/* Navigation Buttons */}
-     
     </>
   );
 };
