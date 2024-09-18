@@ -1,43 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import "./verification.css"
+import "./verification.css";
 
 const Verification = () => {
   const [testStatus, setTestStatus] = useState('Not Started');
 
-  // Start webcam feed
-  useEffect(() => {
+  // Fetch the video feed from Flask
+  const getVideoFeed = () => {
     const videoElement = document.getElementById('verification_webcam');
-    if (navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(function (stream) {
-          videoElement.srcObject = stream;
-        })
-        .catch(function (error) {
-          console.log('Error accessing the webcam: ' + error);
-        });
+    if (videoElement) {
+      videoElement.src = '/video_feed';  // This will fetch the stream served by Flask
     }
-  }, []);
+  };
 
+  // Start the test and check the status periodically
   const startTest = () => {
     fetch('/start_test')
       .then((response) => response.json())
       .then((data) => {
         setTestStatus('In Progress');
         console.log(data);
+
         const intervalId = setInterval(() => {
           fetch('/check_test_status')
             .then((response) => response.json())
             .then((data) => {
               if (data.test_ready) {
                 setTestStatus('Ready. You can start the test!');
-                clearInterval(intervalId);
+                clearInterval(intervalId);  // Stop checking once the test is ready
               }
             });
-        }, 1000);
+        }, 1000);  // Check test status every 1 second
       });
-      
   };
 
+  // On component mount, start fetching the video feed
+  useEffect(() => {
+    getVideoFeed();
+  }, []);
 
   return (
     <div className="verification_container">
@@ -47,14 +46,15 @@ const Verification = () => {
           Follow the steps below to ensure your webcam and audio are working properly:
         </p>
         <ul className="verification_instructions_list">
-          <li>Allow webcam permission to check if your webcam is functioning.</li>
-          <li>Both the webcam and audio tests will be conducted automatically.</li>
-          <li>Once both tests are complete, you will be ready to take the test.</li>
+          <li>Allow permission for webcam access.</li>
+          <li>Both webcam and audio tests will be conducted automatically.</li>
+          <li>Once the tests are complete, you will be ready to take the test.</li>
         </ul>
       </div>
 
       <h3 className="verification_webcam_heading">Webcam Feed</h3>
-      <video id="verification_webcam" className="verification_webcam" autoPlay></video>
+      {/* Video feed streamed from Flask */}
+      <img id="verification_webcam" className="verification_webcam" alt="Webcam Feed" />
 
       <button className="verification_start_test_btn" onClick={startTest}>
         Start Webcam and Audio Test
