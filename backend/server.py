@@ -31,7 +31,7 @@ test_ready = False
 
 # Function to record video and capture a photo from the webcam
 def record_video_and_capture_photo(video_filename, photo_filename):
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
     out = cv2.VideoWriter(video_filename, fourcc, 20.0, (640, 480))
 
     # Record video for 10 seconds and capture a single photo
@@ -93,12 +93,6 @@ def run_tests():
     record_audio(audio_filename, duration=10)
 
     test_ready = True
-
-# Route for the homepage
-@app.route('/')
-def index():
-    return render_template('index.html')
-
 # Route to start the webcam and audio tests
 @app.route('/start_test')
 def start_test():

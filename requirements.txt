@@ -1,8 +1,0 @@
-Flask==2.3.3
-opencv-python==4.8.0.76
-mtcnn==0.1.1
-pyaudio==0.2.13
-wave==0.0.2
-threading==0.1.0
-SpeechRecognition==3.10.0
-
