@@ -48,7 +48,7 @@ const Questions = ({ question }) => {
             <div className="questions-header">
               <MdReportProblem />
               Problem
-              <p className="question_marks_body">{question.marks} mark</p>
+              <p className="question_marks_body">{question?.marks} mark</p>
             </div>
             <div className="questions-content">
               <div className="content-heading">{question.questionheading}</div>

@@ -4,20 +4,37 @@ import "./Editor.css";
 import { Editor as Ed } from "@monaco-editor/react";
 import { FaCode, FaPlay } from "react-icons/fa";
 import axios from "axios";
-import Modal from "react-modal"; // Import Modal component
+import Modal from "react-modal";
 
-Modal.setAppElement("#root"); // Set the root element for accessibility
+Modal.setAppElement("#root");
 
 const Editor = ({ question, onOutput }) => {
   const editorContainerRef = useRef(null);
   const editorRef = useRef(null);
-  const [input, setInput] = useState(""); // Input for modal
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
-  const [userCode, setUserCode] = useState(""); // Store code for resubmission
-  const [userOutput, setUserOutput] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
+  const [input, setInput] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userCode, setUserCode] = useState(""); // Store the code
+  const [ setUserOutput] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  console.log(userCode, userOutput);
+  const localStorageKey = `code_${question?._id}`;
+
+  // Load stored code from localStorage on mount
+  useEffect(() => {
+    const storedCode = localStorage.getItem(localStorageKey);
+    if (storedCode) {
+      setUserCode(storedCode);
+      if (editorRef.current) {
+        editorRef.current.setValue(storedCode);
+      }
+    }
+  }, [question, localStorageKey]);
+
+  // Save the code in localStorage on every change in the editor
+  const handleEditorChange = (newValue) => {
+    setUserCode(newValue); // Update state with new code
+    localStorage.setItem(localStorageKey, newValue); // Save code in localStorage
+  };
 
   const handleEditorDidMount = (editor) => {
     editorRef.current = editor;
@@ -45,9 +62,9 @@ const Editor = ({ question, onOutput }) => {
 
   const handleRunClick = async () => {
     const code = editorRef.current.getValue();
-    setUserCode(code); // Store code for future use
-  
-    // Check for user input methods in different languages
+    setUserCode(code);
+    localStorage.setItem(localStorageKey, code); // Save code in localStorage when run is clicked
+
     const needsInputModal = (code) => {
       switch (question?.compilerReq) {
         case "cpp":
@@ -57,9 +74,9 @@ const Editor = ({ question, onOutput }) => {
             code.includes("scanf") ||
             code.includes("getline") ||
             code.includes("gets") ||
-            code.includes("fgets") ||  // For safer string input
+            code.includes("fgets") || // For safer string input
             code.includes("getchar") ||
-            code.includes("cin.get") || 
+            code.includes("cin.get") ||
             code.includes("cin.getline")
           );
         case "java":
@@ -72,8 +89,8 @@ const Editor = ({ question, onOutput }) => {
           );
         case "python":
           return (
-            code.includes("input") || 
-            code.includes("sys.stdin.read") || 
+            code.includes("input") ||
+            code.includes("sys.stdin.read") ||
             code.includes("sys.stdin.readline") ||
             code.includes("fileinput.input") // Handles input from files (stdin)
           );
@@ -81,50 +98,48 @@ const Editor = ({ question, onOutput }) => {
           return false;
       }
     };
-  
+
     if (needsInputModal(code)) {
-      setIsModalOpen(true); // Open modal if input method is detected
+      setIsModalOpen(true);
       return;
     }
-  
+
     setLoading(true);
     try {
       const res = await axios.post(`http://localhost:5000/student/compile`, {
         code: code,
         language: question?.compilerReq,
-        input: input || "", // Send empty input if none is provided
+        input: input || "",
       });
-  
+
       const output = res.data.stdout || res.data.stderr;
       setUserOutput(output);
-      onOutput(output); // Pass the output back to the parent (Body)
+      onOutput(output);
     } catch (err) {
       const errorOutput = "Error: " + (err.response ? err.response.data.error : err.message);
       setUserOutput(errorOutput);
-      onOutput(errorOutput); // Pass the error back to the parent
+      onOutput(errorOutput);
     } finally {
       setLoading(false);
     }
   };
 
-  // Separate function to handle code execution
   const executeCode = async (inputValue) => {
     setLoading(true);
     try {
       const res = await axios.post(`http://localhost:5000/student/compile`, {
         code: userCode,
         language: question?.compilerReq,
-        input: inputValue || "", // Send empty input if none is provided
+        input: inputValue || "",
       });
 
       const output = res.data.stdout || res.data.stderr;
       setUserOutput(output);
-      onOutput(output); // Pass the output back to the parent (Body)
+      onOutput(output);
     } catch (err) {
-      const errorOutput =
-        "Error: " + (err.response ? err.response.data.error : err.message);
+      const errorOutput = "Error: " + (err.response ? err.response.data.error : err.message);
       setUserOutput(errorOutput);
-      onOutput(errorOutput); // Pass the error back to the parent
+      onOutput(errorOutput);
     } finally {
       setLoading(false);
     }
@@ -132,10 +147,9 @@ const Editor = ({ question, onOutput }) => {
 
   const handleInputSubmit = () => {
     setIsModalOpen(false);
-    executeCode(input); // Run the code with the input provided in the modal
+    executeCode(input);
   };
 
-  console.log(question?.compilerReq);
   return (
     <div className="compiler-editor">
       <div className="editor-header">
@@ -152,9 +166,11 @@ const Editor = ({ question, onOutput }) => {
         <Ed
           theme="vs-dark"
           defaultLanguage={question?.compilerReq}
-          defaultValue="// Write Code Here"
+           value={userCode ||"" }
+
           className="editor-monaco"
           onMount={handleEditorDidMount}
+          onChange={handleEditorChange} // Add this line to listen for changes in the editor
         />
       </div>
 
@@ -185,6 +201,7 @@ Editor.propTypes = {
   question: PropTypes.shape({
     compilerReq: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
+    _id: PropTypes.string.isRequired,
     image: PropTypes.string,
   }),
   onOutput: PropTypes.func.isRequired,
