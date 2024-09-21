@@ -13,7 +13,7 @@ const Questions = ({ question }) => {
     const observer = new ResizeObserver((entries) => {
       if (questionRef.current) {
         const { width } = entries[0].contentRect;
-        setIsSmallWidth(width < 200); // Set state based on width < 150px
+        setIsSmallWidth(width <=200); // Set state based on width < 150px
       }
     });
 
