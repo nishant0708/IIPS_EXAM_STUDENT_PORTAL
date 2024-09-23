@@ -6,12 +6,13 @@
 }
 .body-contents
 {
-    width: 28.5%;
+    width: 28.2%;
+    min-width: 15%;
     overflow-x: hidden;
 }
 .body-contents-small
 {
-    background-color:rgb(211 229 255 / 40%);
+    background-color: rgb(212 225 245 / 48%);;
     border-radius: 10px;
     position: relative;
     margin-top: 9px;

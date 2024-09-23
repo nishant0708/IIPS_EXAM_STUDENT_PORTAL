@@ -13,7 +13,7 @@ const Questions = ({ question }) => {
     const observer = new ResizeObserver((entries) => {
       if (questionRef.current) {
         const { width } = entries[0].contentRect;
-        setIsSmallWidth(width < 200); // Set state based on width < 150px
+        setIsSmallWidth(width <=200); // Set state based on width < 150px
       }
     });
 
@@ -48,7 +48,7 @@ const Questions = ({ question }) => {
             <div className="questions-header">
               <MdReportProblem />
               Problem
-              <p className="question_marks_body">{question.marks} mark</p>
+              <p className="question_marks_body">{question?.marks} mark</p>
             </div>
             <div className="questions-content">
               <div className="content-heading">{question.questionheading}</div>

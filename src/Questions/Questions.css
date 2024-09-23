@@ -5,7 +5,7 @@
   max-width: 90vw;
   overflow-y: auto;
   background-color: #282828;
-  color: white;
+  color: #ccc;
   border-radius: 10px;
   margin-left: 10px;
   font-size: 20px;
@@ -15,6 +15,7 @@
   padding-left: 20px;
   background-color: #1a1a1a;
   display: flex;
+  color: white;
   align-items: center;
   gap: 5px;
   height: 50px;
@@ -36,6 +37,7 @@
 }
 .content-heading {
   font-weight: 600;
+  color: white;
   font-size: xx-large;
 }
 .questions-image {
@@ -62,4 +64,35 @@
   font-weight: 600;
   left: 60%;
   transform-origin: left center;
+}
+
+/*-------- markdown support --------*/
+.content-body *{
+   max-width: 100%;
+}
+
+.content-body img{
+
+
+  max-height: 400px;
+}
+.content-body pre{
+
+  background-color: #353434;
+  color: white;
+  word-wrap: break-word;   
+  overflow-wrap: break-word;
+  padding: 0px 10px;
+  border-radius: 10px;
+}
+.content-body code{
+  background-color: #353434;
+  padding:  0px 10px;
+  white-space: break-spaces;
+  color: white;
+
+
+}
+.content-body strong{
+  color: white;
 }
