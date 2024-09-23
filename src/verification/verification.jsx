@@ -8,20 +8,20 @@ const Verification = () => {
   const getVideoFeed = () => {
     const videoElement = document.getElementById('verification_webcam');
     if (videoElement) {
-      videoElement.src = '/video_feed';  // This will fetch the stream served by Flask
+      videoElement.src = 'http://127.0.0.1:5000/video_feed';  // This will fetch the stream served by Flask
     }
   };
 
   // Start the test and check the status periodically
   const startTest = () => {
-    fetch('/start_test')
+    fetch('http://127.0.0.1:5000/start_test')
       .then((response) => response.json())
       .then((data) => {
         setTestStatus('In Progress');
         console.log(data);
 
         const intervalId = setInterval(() => {
-          fetch('/check_test_status')
+          fetch('http://127.0.0.1:5000/check_test_status')
             .then((response) => response.json())
             .then((data) => {
               if (data.test_ready) {
