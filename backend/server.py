@@ -5,7 +5,10 @@ import pyaudio
 import wave
 import threading
 import speech_recognition as sr
-import os
+import cloudinary
+import cloudinary.uploader
+import random
+import io
 import time
 
 app = Flask(__name__)
@@ -22,35 +25,55 @@ recognizer = sr.Recognizer()
 # Lock for thread-safe webcam access
 lock = threading.Lock()
 
-# Directory to store media files
-MEDIA_DIR = 'media'
-os.makedirs(MEDIA_DIR, exist_ok=True)
-
 # Global flag to track whether tests are completed
 test_ready = False
 
-# Function to record video and capture a photo from the webcam
-def record_video_and_capture_photo(video_filename, photo_filename):
-    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-    out = cv2.VideoWriter(video_filename, fourcc, 20.0, (640, 480))
+# Cloudinary configuration
+cloudinary.config(
+    cloud_name='your_cloud_name',
+    api_key='your_api_key',
+    api_secret='your_api_secret'
+)
 
-    # Record video for 10 seconds and capture a single photo
-    for _ in range(200):  # Capture approximately 10 seconds at 20 FPS
+def generate_three_digit_number():
+    return str(random.randint(100, 999))
+
+# Function to record video and upload directly to Cloudinary
+def record_video_and_capture_photo():
+    # Set the codec for the video writer
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+    
+    # Create an in-memory stream instead of writing to disk
+    video_stream = io.BytesIO()
+
+    # Initialize video writer for in-memory buffer
+    out = cv2.VideoWriter('appsrc ! videoconvert ! x264enc ! mp4mux ! filesink location=/dev/stdout', fourcc, 20.0, (640, 480))
+
+    # Record video for 10 seconds
+    for _ in range(200):  # Approx 10 seconds at 20 FPS
         with lock:
             ret, frame = cap.read()
             if not ret:
                 break
-            # Write the frame to the video file
+            # Write frame to video writer
             out.write(frame)
         time.sleep(0.05)
 
-    # Capture a photo
-    with lock:
-        ret, frame = cap.read()
-        if ret:
-            cv2.imwrite(photo_filename, frame)
-
     out.release()
+
+    # Generate a random three-digit number for Cloudinary public ID
+    three_digit_number = generate_three_digit_number()
+
+    # Upload the video directly to Cloudinary from the in-memory stream
+    video_stream.seek(0)  # Ensure we're at the start of the stream
+    cloudinary_response = cloudinary.uploader.upload_large(
+        video_stream, 
+        resource_type="video",
+        public_id=f"video_{three_digit_number}",
+        folder="media"
+    )
+
+    print("Uploaded video to Cloudinary:", cloudinary_response['secure_url'])
 
 # Function to capture audio using pyaudio
 def record_audio(filename, duration=10, sample_rate=16000):
@@ -82,17 +105,16 @@ def record_audio(filename, duration=10, sample_rate=16000):
 # Function to start the webcam and audio test
 def run_tests():
     global test_ready
-    video_filename = os.path.join(MEDIA_DIR, 'test_video.mp4')
-    photo_filename = os.path.join(MEDIA_DIR, 'student_photo.jpg')
-    audio_filename = os.path.join(MEDIA_DIR, 'test_audio.wav')
 
-    # Start recording video and capture a photo
-    record_video_and_capture_photo(video_filename, photo_filename)
+    # Record video and upload directly to Cloudinary
+    record_video_and_capture_photo()
 
-    # Start recording audio
+    # Record audio (if you want to keep audio locally)
+    audio_filename = 'test_audio.wav'
     record_audio(audio_filename, duration=10)
 
     test_ready = True
+
 # Route to start the webcam and audio tests
 @app.route('/start_test')
 def start_test():
@@ -126,3 +148,5 @@ def generate_frames():
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+if __name__ == '__main__':
+    app.run(debug=True)
