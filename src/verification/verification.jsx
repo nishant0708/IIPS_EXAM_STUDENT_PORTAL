@@ -54,7 +54,7 @@ const Verification = () => {
 
       <h3 className="verification_webcam_heading">Webcam Feed</h3>
       {/* Video feed streamed from Flask */}
-      <img id="verification_webcam" className="verification_webcam" alt="Webcam Feed" />
+      <video id="verification_webcam" className="verification_webcam" autoPlay muted />
 
       <button className="verification_start_test_btn" onClick={startTest}>
         Start Webcam and Audio Test
