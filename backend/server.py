@@ -10,8 +10,10 @@ import cloudinary.uploader
 import random
 import io
 import time
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Initialize the webcam
 cap = cv2.VideoCapture(0)
