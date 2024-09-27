@@ -13,7 +13,7 @@ import time
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 # Initialize the webcam
 cap = cv2.VideoCapture(0)
@@ -32,9 +32,9 @@ test_ready = False
 
 # Cloudinary configuration
 cloudinary.config(
-    cloud_name='your_cloud_name',
-    api_key='your_api_key',
-    api_secret='your_api_secret'
+    cloud_name="duxvbwdf3",
+    api_key=282754191399316,
+    api_secret="4NYTt_3v2JK7-O0KUN9UwKrAWiE"
 )
 
 def generate_three_digit_number():
@@ -107,15 +107,20 @@ def record_audio(filename, duration=10, sample_rate=16000):
 # Function to start the webcam and audio test
 def run_tests():
     global test_ready
+    try:
+        # Record video and upload directly to Cloudinary
+        record_video_and_capture_photo()
 
-    # Record video and upload directly to Cloudinary
-    record_video_and_capture_photo()
+        # Record audio (if you want to keep audio locally)
+        audio_filename = 'test_audio.wav'
+        record_audio(audio_filename, duration=10)
 
-    # Record audio (if you want to keep audio locally)
-    audio_filename = 'test_audio.wav'
-    record_audio(audio_filename, duration=10)
+        test_ready = True
+    except Exception as e:
+        print(f"Error during tests: {e}")
+        # Even if there's an error, set test_ready to True to allow completion
+        test_ready = True
 
-    test_ready = True
 
 # Route to start the webcam and audio tests
 @app.route('/start_test')

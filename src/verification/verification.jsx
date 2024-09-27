@@ -1,16 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import "./verification.css";
 
 const Verification = () => {
   const [testStatus, setTestStatus] = useState('Not Started');
-
-  // Fetch the video feed from Flask
-  const getVideoFeed = () => {
-    const videoElement = document.getElementById('verification_webcam');
-    if (videoElement) {
-      videoElement.src = 'http://127.0.0.1:5000/video_feed';  // This will fetch the stream served by Flask
-    }
-  };
 
   // Start the test and check the status periodically
   const startTest = () => {
@@ -33,11 +25,6 @@ const Verification = () => {
       });
   };
 
-  // On component mount, start fetching the video feed
-  useEffect(() => {
-    getVideoFeed();
-  }, []);
-
   return (
     <div className="verification_container">
       <div className="verification_instructions">
@@ -53,8 +40,13 @@ const Verification = () => {
       </div>
 
       <h3 className="verification_webcam_heading">Webcam Feed</h3>
-      {/* Video feed streamed from Flask */}
-      <video id="verification_webcam" className="verification_webcam" autoPlay muted />
+      {/* Directly stream the video feed from Flask */}
+      <img
+        id="verification_webcam"
+        className="verification_webcam"
+        src="http://127.0.0.1:5000/video_feed"  // Directly set the stream URL
+        alt="Webcam feed"
+      />
 
       <button className="verification_start_test_btn" onClick={startTest}>
         Start Webcam and Audio Test
