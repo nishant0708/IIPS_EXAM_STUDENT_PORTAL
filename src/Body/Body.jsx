@@ -10,6 +10,30 @@ import "./Body.css";
 const Body = ({ question }) => {
   const bodyContentsRef = useRef(null); // Reference for body-contents
   const [output, setOutput] = useState(""); // State to store the output
+  const [codes, setCodes] = useState([]); // Array to store code for each question
+
+  // Function to update the code for a specific question
+  const updateCode = (questionId, newCode) => {
+    setCodes((prevCodes) => {
+      const existingCodeIndex = prevCodes.findIndex((item) => item.questionId === questionId);
+      
+      if (existingCodeIndex !== -1) {
+        // Update existing code
+        const updatedCodes = [...prevCodes];
+        updatedCodes[existingCodeIndex].code = newCode;
+        return updatedCodes;
+      } else {
+        // Add new code
+        return [...prevCodes, { questionId, code: newCode }];
+      }
+    });
+  };
+
+  // Function to get the code for a specific question
+  const getCode = (questionId) => {
+    const foundCode = codes.find((item) => item.questionId === questionId);
+    return foundCode ? foundCode.code : "";
+  };
 
   return (
     <div className="compiler-body" data-flex-splitter-horizontal>
@@ -17,12 +41,9 @@ const Body = ({ question }) => {
 
       <div role="separator" tabIndex="1"></div>
 
-      {/* Always render the main content */}
       <div className="body-contents" data-flex-splitter-vertical ref={bodyContentsRef}>
-        {/* Pass setOutput function to Editor to update the output */}
-        <Editor question={question} onOutput={setOutput} />
+        <Editor question={question} onOutput={setOutput} getCode={getCode} updateCode={updateCode} />
         <div role="separator" tabIndex="1"></div>
-        {/* Pass the output state to the Test component */}
         <Test output={output} />
       </div>
     </div>

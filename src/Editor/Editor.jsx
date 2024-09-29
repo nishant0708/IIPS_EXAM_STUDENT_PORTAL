@@ -14,21 +14,24 @@ const Editor = ({ question, onOutput }) => {
   const [input, setInput] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userCode, setUserCode] = useState(""); // Store the code
-  const [ setUserOutput] = useState("");
+  const [userOutput, setUserOutput] = useState(""); // Corrected line
   const [loading, setLoading] = useState(false);
 
   const localStorageKey = `code_${question?._id}`;
-
-  // Load stored code from localStorage on mount
+  const runHistoryKey = `runHistory_${question?._id}`;
+  console.log(userOutput);
+  // Load stored code and runs from localStorage on mount
   useEffect(() => {
     const storedCode = localStorage.getItem(localStorageKey);
+    const runHistory = JSON.parse(localStorage.getItem(runHistoryKey)) || [];
     if (storedCode) {
       setUserCode(storedCode);
       if (editorRef.current) {
         editorRef.current.setValue(storedCode);
       }
     }
-  }, [question, localStorageKey]);
+    console.log("Run history: ", runHistory);
+  }, [question, localStorageKey, runHistoryKey]);
 
   // Save the code in localStorage on every change in the editor
   const handleEditorChange = (newValue) => {
@@ -60,6 +63,18 @@ const Editor = ({ question, onOutput }) => {
     };
   }, []);
 
+  const saveRunInLocalStorage = (inputValue, codeValue, outputValue) => {
+    const runHistory = JSON.parse(localStorage.getItem(runHistoryKey)) || [];
+    const newRun = {
+      input: inputValue,
+      code: codeValue,
+      output: outputValue,
+      timestamp: new Date().toLocaleString(),
+    };
+    runHistory.push(newRun);
+    localStorage.setItem(runHistoryKey, JSON.stringify(runHistory));
+  };
+
   const handleRunClick = async () => {
     const code = editorRef.current.getValue();
     setUserCode(code);
@@ -81,10 +96,10 @@ const Editor = ({ question, onOutput }) => {
           );
         case "java":
           return (
-            code.includes("Scanner") && code.includes("next") ||
-            code.includes("BufferedReader") && code.includes("readLine") ||
+            (code.includes("Scanner") && code.includes("next")) ||
+            (code.includes("BufferedReader") && code.includes("readLine")) ||
             code.includes("InputStreamReader") ||
-            code.includes("Console") && code.includes("readLine") ||
+            (code.includes("Console") && code.includes("readLine")) ||
             code.includes("DataInputStream")
           );
         case "python":
@@ -115,10 +130,16 @@ const Editor = ({ question, onOutput }) => {
       const output = res.data.stdout || res.data.stderr;
       setUserOutput(output);
       onOutput(output);
+
+      // Save input, code, and output in localStorage
+      saveRunInLocalStorage(input, code, output);
     } catch (err) {
       const errorOutput = "Error: " + (err.response ? err.response.data.error : err.message);
       setUserOutput(errorOutput);
       onOutput(errorOutput);
+
+      // Save input, code, and error in localStorage
+      saveRunInLocalStorage(input, code, errorOutput);
     } finally {
       setLoading(false);
     }
@@ -136,10 +157,16 @@ const Editor = ({ question, onOutput }) => {
       const output = res.data.stdout || res.data.stderr;
       setUserOutput(output);
       onOutput(output);
+
+      // Save input, code, and output in localStorage
+      saveRunInLocalStorage(inputValue, userCode, output);
     } catch (err) {
       const errorOutput = "Error: " + (err.response ? err.response.data.error : err.message);
       setUserOutput(errorOutput);
       onOutput(errorOutput);
+
+      // Save input, code, and error in localStorage
+      saveRunInLocalStorage(inputValue, userCode, errorOutput);
     } finally {
       setLoading(false);
     }
@@ -166,8 +193,7 @@ const Editor = ({ question, onOutput }) => {
         <Ed
           theme="vs-dark"
           defaultLanguage={question?.compilerReq}
-           value={userCode ||"" }
-
+          value={userCode || ""} // Update code value
           className="editor-monaco"
           onMount={handleEditorDidMount}
           onChange={handleEditorChange} // Add this line to listen for changes in the editor
@@ -205,7 +231,7 @@ Editor.propTypes = {
     image: PropTypes.string,
   }),
   onOutput: PropTypes.func.isRequired,
-  userLang: PropTypes.string.isRequired,
+  userLang: PropTypes.string.isRequired, // Consider removing if not used
 };
 
 export default Editor;
