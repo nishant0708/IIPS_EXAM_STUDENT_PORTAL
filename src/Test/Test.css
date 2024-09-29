@@ -22,7 +22,7 @@
 
 .test-output {
   padding: 5px 11px;
-  white-space: pre-wrap; /* Preserves both spaces and newlines */
+  white-space: pre-wrap;
   width: 92%;
-  overflow-wrap: break-word; /* Ensures words break to fit in the container */
+  overflow-wrap: break-word; 
 }

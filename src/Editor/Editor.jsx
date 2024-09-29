@@ -13,13 +13,13 @@ const Editor = ({ question, onOutput }) => {
   const editorRef = useRef(null);
   const [input, setInput] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [userCode, setUserCode] = useState(""); // Store the code
-  const [userOutput, setUserOutput] = useState(""); // Corrected line
+  const [userCode, setUserCode] = useState("");
+  const [userOutput, setUserOutput] = useState("");
   const [loading, setLoading] = useState(false);
 
   const localStorageKey = `code_${question?._id}`;
   const runHistoryKey = `runHistory_${question?._id}`;
-  console.log(userOutput);
+
   // Load stored code and runs from localStorage on mount
   useEffect(() => {
     const storedCode = localStorage.getItem(localStorageKey);
@@ -35,8 +35,8 @@ const Editor = ({ question, onOutput }) => {
 
   // Save the code in localStorage on every change in the editor
   const handleEditorChange = (newValue) => {
-    setUserCode(newValue); // Update state with new code
-    localStorage.setItem(localStorageKey, newValue); // Save code in localStorage
+    setUserCode(newValue);
+    localStorage.setItem(localStorageKey, newValue);
   };
 
   const handleEditorDidMount = (editor) => {
@@ -78,7 +78,7 @@ const Editor = ({ question, onOutput }) => {
   const handleRunClick = async () => {
     const code = editorRef.current.getValue();
     setUserCode(code);
-    localStorage.setItem(localStorageKey, code); // Save code in localStorage when run is clicked
+    localStorage.setItem(localStorageKey, code);
 
     const needsInputModal = (code) => {
       switch (question?.compilerReq) {
@@ -89,7 +89,7 @@ const Editor = ({ question, onOutput }) => {
             code.includes("scanf") ||
             code.includes("getline") ||
             code.includes("gets") ||
-            code.includes("fgets") || // For safer string input
+            code.includes("fgets") ||
             code.includes("getchar") ||
             code.includes("cin.get") ||
             code.includes("cin.getline")
@@ -107,7 +107,7 @@ const Editor = ({ question, onOutput }) => {
             code.includes("input") ||
             code.includes("sys.stdin.read") ||
             code.includes("sys.stdin.readline") ||
-            code.includes("fileinput.input") // Handles input from files (stdin)
+            code.includes("fileinput.input")
           );
         default:
           return false;
@@ -134,7 +134,8 @@ const Editor = ({ question, onOutput }) => {
       // Save input, code, and output in localStorage
       saveRunInLocalStorage(input, code, output);
     } catch (err) {
-      const errorOutput = "Error: " + (err.response ? err.response.data.error : err.message);
+      const errorOutput =
+        "Error: " + (err.response ? err.response.data.error : err.message);
       setUserOutput(errorOutput);
       onOutput(errorOutput);
 
@@ -154,17 +155,18 @@ const Editor = ({ question, onOutput }) => {
         input: inputValue || "",
       });
 
-      const output = res.data.stdout || res.data.stderr;
+      const output = res.data.output || res.data.stderr;
       setUserOutput(output);
       onOutput(output);
 
       // Save input, code, and output in localStorage
       saveRunInLocalStorage(inputValue, userCode, output);
     } catch (err) {
-      const errorOutput = "Error: " + (err.response ? err.response.data.error : err.message);
+      const errorOutput =
+        "Error: " + (err.response ? err.response.data.error : err.message);
       setUserOutput(errorOutput);
       onOutput(errorOutput);
-
+      console.log(userOutput);
       // Save input, code, and error in localStorage
       saveRunInLocalStorage(inputValue, userCode, errorOutput);
     } finally {
@@ -231,7 +233,7 @@ Editor.propTypes = {
     image: PropTypes.string,
   }),
   onOutput: PropTypes.func.isRequired,
-  userLang: PropTypes.string.isRequired, // Consider removing if not used
+  userLang: PropTypes.string.isRequired,
 };
 
 export default Editor;

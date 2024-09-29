@@ -2,8 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import "./Test.css";
 import { IoCheckmarkDone } from "react-icons/io5";
-import ReactMarkdown from "react-markdown"; // Import react-markdown
-import rehypeSanitize from "rehype-sanitize"; // To sanitize HTML
+import ReactMarkdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
+import remarkBreaks from "remark-breaks";
 
 const Test = ({ output }) => {
   return (
@@ -13,7 +14,10 @@ const Test = ({ output }) => {
         Test Output
       </div>
       <div className="test-output">
-        <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+        <ReactMarkdown
+          remarkPlugins={[remarkBreaks]} 
+          rehypePlugins={[rehypeSanitize]}
+        >
           {output}
         </ReactMarkdown>
       </div>
@@ -21,9 +25,9 @@ const Test = ({ output }) => {
   );
 };
 
-// Define prop types for the Test component
+
 Test.propTypes = {
-  output: PropTypes.string.isRequired, // Ensure 'output' is a required string
+  output: PropTypes.string.isRequired, 
 };
 
 export default Test;

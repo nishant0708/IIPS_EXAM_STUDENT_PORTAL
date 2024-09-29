@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { FaBars } from "react-icons/fa6";
-import { FaUpload } from "react-icons/fa";
+import {
+  FaBars,
+  FaUpload,
+  FaChevronLeft,
+  FaChevronRight,
+} from "react-icons/fa";
 import { CgSandClock } from "react-icons/cg";
 import { RxCross2 } from "react-icons/rx";
-import { useParams } from "react-router-dom"; // For fetching questionId from URL
-import { FaChevronLeft } from "react-icons/fa";
-import { FaChevronRight } from "react-icons/fa";
+import { useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import "./Navbar.css";
 
 const Navbar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [currques, setCurrQues] = useState(null);
   const [studentDetails, setStudentDetails] = useState({
     fullName: "",
     rollNumber: "",
@@ -19,7 +22,9 @@ const Navbar = () => {
   const paperId = localStorage.getItem("paperId");
   const [questionList, setQuestionList] = useState([]);
   const studentId = localStorage.getItem("studentId");
-  const { questionId } = useParams(); // Extract questionId from the URL
+
+  const { questionId } = useParams();
+  const location = useLocation();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -34,7 +39,6 @@ const Navbar = () => {
       .padStart(2, "0")} : ${secs.toString().padStart(2, "0")}`;
   };
 
-  // Fetch paper details and calculate remaining time
   const fetchPaperDetails = async () => {
     try {
       const response = await axios.post(
@@ -42,7 +46,6 @@ const Navbar = () => {
         { paperId }
       );
       const paper = response.data[0];
-      // console.log(paper);
       const endTime = new Date(paper.endTime);
       const currentTime = new Date();
       const remainingTime = Math.floor((endTime - currentTime) / 1000);
@@ -54,22 +57,19 @@ const Navbar = () => {
 
   const fetchQuestionDetails = async () => {
     try {
-      let response = await axios.post(
+      const response = await axios.post(
         "http://localhost:5000/student/getQuestionByPaperId",
         { paperId }
       );
-
-      let sortedQuestions = response.data.questions.sort(
+      const sortedQuestions = response.data.questions.sort(
         (a, b) => a.marks - b.marks
       );
-
       setQuestionList(sortedQuestions);
     } catch (error) {
       console.error("Error fetching question details:", error);
     }
   };
 
-  // Fetch student details using studentId
   const fetchStudentDetails = async () => {
     try {
       const response = await axios.post(
@@ -77,14 +77,31 @@ const Navbar = () => {
         { studentId }
       );
       const { student } = response.data;
-      setStudentDetails(student[0]); // Assuming student is an array, take the first element
+      setStudentDetails(student[0]);
     } catch (error) {
       console.error("Error fetching student details:", error);
     }
   };
 
-  // Navigate to the next or previous question
+  const fetchCurrentQuestion = () => {
+    if (questionList.length === 0 || !questionId) {
+      setCurrQues(null);
+      return;
+    }
+    const currentQuestion = questionList.find((q) => q._id === questionId);
+    if (currentQuestion) {
+      setCurrQues({
+        question: currentQuestion,
+        message: "Found Navigated Question",
+      });
+    } else {
+      setCurrQues(null);
+    }
+  };
+
   const handleNavigation = async (direction) => {
+    if (!currques || !currques.question) return;
+
     try {
       const response = await axios.post(
         "http://localhost:5000/student/getQuestionNavigation",
@@ -94,12 +111,16 @@ const Navbar = () => {
         }
       );
       const { question } = response.data;
-      // Update the URL with the new questionId (this requires proper routing setup)
+      setCurrQues(response.data);
       window.location.href = `/compiler/${question._id}`;
     } catch (error) {
       console.error("Error navigating question:", error);
     }
   };
+
+  useEffect(() => {
+    fetchCurrentQuestion();
+  }, [questionId, questionList]);
 
   useEffect(() => {
     fetchPaperDetails();
@@ -112,6 +133,14 @@ const Navbar = () => {
     return () => clearInterval(countdown);
   }, []);
 
+  const handleSubmit = () => {
+    if (timeLeft > 0) {
+      window.location.href = "/submit";
+    } else {
+      alert("Time is up!");
+    }
+  };
+
   return (
     <>
       <div className="navbar">
@@ -120,28 +149,40 @@ const Navbar = () => {
           <div className="problem-list-text">Problem List</div>
         </div>
         <div className="navbar-name">
-          <div>{studentDetails.rollNumber}</div>{" "}
-          {/* Display student roll number */}
-          <div>{studentDetails.fullName}</div> {/* Display student name */}
+          <div>{studentDetails.rollNumber}</div>
+          <div>{studentDetails.fullName}</div>
         </div>
         <div className="navbar-contents">
           <div className="navigation-display-flex">
-            <div>
-              <p onClick={() => handleNavigation("previous")}>
+            {/* Hide the navigation buttons when on '/submit' */}
+            {location.pathname !== "/submit" && (
+              <button
+                onClick={() => handleNavigation("previous")}
+                disabled={!currques?.question?.previousQuestionId}
+                className={`nav-button ${
+                  !currques?.question?.previousQuestionId ? "disabled" : ""
+                }`}
+              >
                 <FaChevronLeft size={15} />
                 <div>Previous</div>
-              </p>
-            </div>
-            <div className="navbar-submit">
+              </button>
+            )}
+            <div className="navbar-submit" onClick={handleSubmit}>
               <FaUpload size={15} />
               <div>Submit</div>
             </div>
-            <div>
-              <p onClick={() => handleNavigation("next")}>
+            {location.pathname !== "/submit" && (
+              <button
+                onClick={() => handleNavigation("next")}
+                disabled={!currques?.question?.nextQuestionId}
+                className={`nav-button ${
+                  !currques?.question?.nextQuestionId ? "disabled" : ""
+                }`}
+              >
                 <div>Next</div>
                 <FaChevronRight size={15} />
-              </p>
-            </div>
+              </button>
+            )}
           </div>
         </div>
         <div className="navbar-timer navbar-right-margin">
@@ -152,34 +193,30 @@ const Navbar = () => {
       <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
         <RxCross2 onClick={toggleSidebar} className="slidebar-back-icon" />
         <ul className="question-list">
-          {questionList.map((question, index = 0) => {
-            return (
-              <div
-                onClick={() =>
-                  (window.location.href = `/compiler/${question._id}`)
-                }
-                className="slidebar-ele"
-                key={index}
+          {questionList.map((question) => (
+            <div
+              onClick={() =>
+                (window.location.href = `/compiler/${question._id}`)
+              }
+              className="slidebar-ele"
+              key={question._id}
+            >
+              <span
+                style={{ float: "right" }}
+                className="navbar_question-marks"
               >
-                <span
-                  style={{ float: "right" }}
-                  className="navbar_question-marks"
-                >
-                  Marks: {question?.marks}
-                </span>
-                <p className="navbar_question-description">
-                  {question?.questionheading
-                    ? question?.questionheading
-                    : question?.questionDescription}
-                </p>
-              </div>
-            );
-          })}
+                Marks: {question?.marks}
+              </span>
+              <p className="navbar_question-description">
+                {question?.questionheading
+                  ? question?.questionheading
+                  : question?.questionDescription}
+              </p>
+            </div>
+          ))}
         </ul>
       </div>
       {sidebarOpen && <div className="overlay" onClick={toggleSidebar}></div>}
-
-      {/* Navigation Buttons */}
     </>
   );
 };

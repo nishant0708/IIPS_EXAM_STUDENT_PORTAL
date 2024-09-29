@@ -1,0 +1,69 @@
+.submitpage_question-card {
+    background-color: #282828;
+    border-radius: 8px;
+    padding: 20px;
+    height: 400px;
+    position: relative;
+    margin: 0 auto;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+    cursor: pointer; 
+  }
+  
+  .submitpage_container {
+    margin-top: 20px;
+    padding: 0px 20px;
+  }
+  
+  .submitpage_question-heading-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .submitpage_question-marks {
+    color: orange;
+    font-size: 20px;
+  }
+  
+  .submitpage_editor-section {
+    margin-bottom: 15px;
+  }
+  
+  .submitpage_editor-monaco {
+    width: 100%;
+    height: 250px;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .submitpage_question-description {
+    margin: 0px;
+  }
+  
+  .submitpage_editor-section h3 {
+    margin: 20px 0px;
+  }
+  
+  .submitpage_status {
+    top: 0;
+    left: 20;
+    position: absolute;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+  
+  .submitpage_status.not-attempted {
+    color: red;
+  }
+  
+  .submitpage_status.attempted {
+    color: green;
+  }
+  
+  .submitpage_status.attempted-but-not-run {
+    color: orange;
+  }
+  
