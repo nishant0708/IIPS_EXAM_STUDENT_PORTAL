@@ -7,10 +7,10 @@ import {
 } from "react-icons/fa";
 import { CgSandClock } from "react-icons/cg";
 import { RxCross2 } from "react-icons/rx";
-import { useParams, useLocation, useNavigate } from "react-router-dom"; // Added useNavigate for programmatic navigation
+import { useParams, useLocation, useNavigate } from "react-router-dom"; 
 import axios from "axios";
 import "./Navbar.css";
-import { submitResponse } from "../SubmitFunction/Submit"; // Import the submitResponse function
+import { submitResponse } from "../SubmitFunction/Submit";
 
 const Navbar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -114,7 +114,7 @@ const Navbar = () => {
       );
       const { question } = response.data;
       setCurrQues(response.data);
-      navigate(`/compiler/${question._id}`); // Using navigate to go to the next/previous question
+      window.location.href=`/compiler/${question._id}`; 
     } catch (error) {
       console.error("Error navigating question:", error);
     }
