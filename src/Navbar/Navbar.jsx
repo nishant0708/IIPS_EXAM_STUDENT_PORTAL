@@ -7,9 +7,10 @@ import {
 } from "react-icons/fa";
 import { CgSandClock } from "react-icons/cg";
 import { RxCross2 } from "react-icons/rx";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom"; // Added useNavigate for programmatic navigation
 import axios from "axios";
 import "./Navbar.css";
+import { submitResponse } from "../SubmitFunction/Submit"; // Import the submitResponse function
 
 const Navbar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,6 +26,7 @@ const Navbar = () => {
 
   const { questionId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate(); // useNavigate to navigate to another route
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -112,9 +114,33 @@ const Navbar = () => {
       );
       const { question } = response.data;
       setCurrQues(response.data);
-      window.location.href = `/compiler/${question._id}`;
+      navigate(`/compiler/${question._id}`); // Using navigate to go to the next/previous question
     } catch (error) {
       console.error("Error navigating question:", error);
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+
+      if (location.pathname !== "/submit") {
+        navigate("/submit");
+        return;
+      }
+  
+
+      const userConfirmed = window.confirm("Are you sure you want to submit?");
+      if (!userConfirmed) {
+        return; 
+      }
+  
+
+      await submitResponse(); 
+      window.location.href = "/"; 
+  
+    } catch (error) {
+      console.error("Error during submission:", error);
+
     }
   };
 
@@ -126,20 +152,21 @@ const Navbar = () => {
     fetchPaperDetails();
     fetchStudentDetails();
     fetchQuestionDetails();
+    
     const countdown = setInterval(() => {
-      setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+      setTimeLeft((prevTime) => {
+        if (prevTime > 0) {
+          return prevTime - 1;
+        } else {
+          clearInterval(countdown); 
+          handleSubmit(); // Auto-submit when time is up
+          return 0;
+        }
+      });
     }, 1000);
 
     return () => clearInterval(countdown);
   }, []);
-
-  const handleSubmit = () => {
-    if (timeLeft > 0) {
-      window.location.href = "/submit";
-    } else {
-      alert("Time is up!");
-    }
-  };
 
   return (
     <>
@@ -154,7 +181,6 @@ const Navbar = () => {
         </div>
         <div className="navbar-contents">
           <div className="navigation-display-flex">
-            {/* Hide the navigation buttons when on '/submit' */}
             {location.pathname !== "/submit" && (
               <button
                 onClick={() => handleNavigation("previous")}
