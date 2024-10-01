@@ -1,52 +1,92 @@
 /* Modal Overlay */
 .alert_overlay {
-    background-color: rgba(0, 0, 0, 0.75);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  /* Modal Content */
-  .alert_modal {
-    background-color: #333;
-    color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 400px;
-    width: 100%;
-    text-align: center;
-  }
-  
-  .alert_modal-content h2 {
-    margin-top: 0;
-    font-size: 24px;
-  }
-  
-  .alert_modal-content p {
-    margin-bottom: 20px;
-    font-size: 18px;
-  }
-  
-  .alert_success-icon {
-    width: 80px; /* Adjust the width */
-    height: 80px; /* Adjust the height */
-    margin: 20px 0;
-  }
-  
-  .alert_close-button {
-    background-color: #555;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.75);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  bottom: 0;
+  display: flex;
+  backdrop-filter: blur(12px);
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modal Content */
+.alert_modal {
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.alert_modal-content h2 {
+  margin-top: 0;
+  font-size: 24px;
+}
+
+.alert_modal-content p {
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+.alert_success-icon {
+  width: 80px; /* Adjust the width */
+  height: 80px; /* Adjust the height */
+  margin: 20px 0;
+}
+
+.alert_close-button {
+  background-color: #555;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.alert_confirm-button {
+  background-color: #555;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+}
+.alert_confirm-button:first-child
+{
+    background-color: green;
+}
+.alert_confirm-button:nth-child(2)
+{
+    background-color: red;
+}
+.alert_confirm-button:hover
+{
     cursor: pointer;
-  }
-  
-  .alert_close-button:hover {
-    background-color: #777;
-  }
+}
+.alert_confirm-button:first-child:hover
+{
+  background-color: rgba(0, 128, 0, 0.384);
+}
+.alert_confirm-button:nth-child(2):hover
+{
+  background-color: rgba(255, 0, 0, 0.384);
+}
+.alert_close-button:hover {
+  background-color: #777;
+}
+
+.alert_display-flex
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 5px;
+}
