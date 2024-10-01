@@ -7,10 +7,11 @@ import {
 } from "react-icons/fa";
 import { CgSandClock } from "react-icons/cg";
 import { RxCross2 } from "react-icons/rx";
-import { useParams, useLocation, useNavigate } from "react-router-dom"; 
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Navbar.css";
 import { submitResponse } from "../SubmitFunction/Submit";
+import AlertModal from "../AlertModal/AlertModal";
 
 const Navbar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -23,6 +24,8 @@ const Navbar = () => {
   const paperId = localStorage.getItem("paperId");
   const [questionList, setQuestionList] = useState([]);
   const studentId = localStorage.getItem("studentId");
+  const [modalIsOpen, setModalIsOpen] = useState(false); // State to control modal visibility
+  const [modalMessage, setModalMessage] = useState(""); // State to control modal visibility
 
   const { questionId } = useParams();
   const location = useLocation();
@@ -114,34 +117,35 @@ const Navbar = () => {
       );
       const { question } = response.data;
       setCurrQues(response.data);
-      window.location.href=`/compiler/${question._id}`; 
+      window.location.href = `/compiler/${question._id}`;
     } catch (error) {
       console.error("Error navigating question:", error);
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async ({ timeup = false }) => {
     try {
-
       if (location.pathname !== "/submit") {
         navigate("/submit");
-        return;
       }
-  
-
-      const userConfirmed = window.confirm("Are you sure you want to submit?");
-      if (!userConfirmed) {
-        return; 
+      if (timeup) {
+        setModalMessage(
+          "Test time is up, paper will now be submited automatically please confirm!!"
+        );
+        setModalIsOpen(true);
+      } else {
+        setModalMessage("Are you sure you want to submit?");
+        setModalIsOpen(true);
       }
-  
-
-      await submitResponse(); 
-      window.location.href = "/"; 
-  
     } catch (error) {
       console.error("Error during submission:", error);
-
     }
+  };
+
+  const onSubmit = async () => {
+    await submitResponse();
+    navigate("/");
+    setModalIsOpen(false);
   };
 
   useEffect(() => {
@@ -152,14 +156,14 @@ const Navbar = () => {
     fetchPaperDetails();
     fetchStudentDetails();
     fetchQuestionDetails();
-    
+
     const countdown = setInterval(() => {
       setTimeLeft((prevTime) => {
         if (prevTime > 0) {
           return prevTime - 1;
         } else {
-          clearInterval(countdown); 
-          handleSubmit(); // Auto-submit when time is up
+          clearInterval(countdown);
+          handleSubmit({ timeup: true }); // Auto-submit when time is up
           return 0;
         }
       });
@@ -243,6 +247,14 @@ const Navbar = () => {
         </ul>
       </div>
       {sidebarOpen && <div className="overlay" onClick={toggleSidebar}></div>}
+      <AlertModal
+        isOpen={modalIsOpen}
+        isConfirm={true}
+        onConfirm={() => onSubmit()}
+        onClose={() => setModalIsOpen(false)}
+        message={modalMessage}
+        iserror={false}
+      />
     </>
   );
 };
