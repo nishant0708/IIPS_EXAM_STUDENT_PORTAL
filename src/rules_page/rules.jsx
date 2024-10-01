@@ -12,6 +12,7 @@ const RulesPage = () => {
   const [timerActive, setTimerActive] = useState(false);
   const [paper, setPaper] = useState({});
   const paperId = localStorage.getItem("paperId");
+  const [firstQuestion, setFirstQuestion] = useState();
 
   // Fetch paper details from API
   const fetchPaperDetails = async () => {
@@ -55,8 +56,9 @@ const RulesPage = () => {
   }, [currentTime, startTime]);
 
   useEffect(() => {
-    if (localStorage.getItem("start")) {
-      navigate("/compiler");
+    if (localStorage?.getItem("start")) {
+    console.log(firstQuestion);
+      navigate(`/compiler/${localStorage.getItem("firstQuestion")}`);
     }
   }, [navigate]);
 
@@ -68,11 +70,14 @@ const RulesPage = () => {
           `http://localhost:5000/student/getFirstQuestionByPaperId`,
           { paperId }
         );
-        const firstQuestion = response.data.question;
+        const firstQuestion = response?.data?.question;
 
         if (firstQuestion) {
           localStorage.setItem("start", "true");
+          setFirstQuestion(firstQuestion?._id);
+          localStorage.setItem("firstQuestion", firstQuestion?._id);
           navigate(`/compiler/${firstQuestion._id}`);
+         
         }
       } catch (error) {
         console.error("Error fetching the first question:", error);
