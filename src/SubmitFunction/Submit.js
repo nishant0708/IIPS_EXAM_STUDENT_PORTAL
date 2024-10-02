@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const submitResponse = async () => {
+export const submitResponse = async ({ ontimeOut = false }) => {
   try {
     // Get teacherId, studentId, and paperId from local storage
     const teacherId = localStorage.getItem("teacherId");
@@ -21,7 +21,8 @@ export const submitResponse = async () => {
     // Prepare the responses for each question
     const questionResponses = questions.map((question) => {
       const finalCode = localStorage.getItem(`code_${question._id}`);
-      const runHistory = JSON.parse(localStorage.getItem(`runHistory_${question._id}`)) || [];
+      const runHistory =
+        JSON.parse(localStorage.getItem(`runHistory_${question._id}`)) || [];
 
       return {
         questionId: question._id,
@@ -46,11 +47,17 @@ export const submitResponse = async () => {
     if (submitResponse.status === 200) {
       console.log("Response submitted successfully!");
 
-      // Clear all localStorage data
-      localStorage.clear();
+      if (!ontimeOut) {
+        // Clear all localStorage data
+        localStorage.clear();
 
-      // Redirect to the home page
-      window.location.href = "/";
+        // Redirect to the home page
+        window.location.href = "/";
+      }else{
+        localStorage.removeItem("teacherId")
+        localStorage.removeItem("studentId")
+        localStorage.removeItem("paperId")
+      }
     } else {
       console.error("Failed to submit response:", submitResponse.statusText);
     }
