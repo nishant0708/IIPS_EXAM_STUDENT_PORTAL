@@ -24,8 +24,9 @@ const Navbar = () => {
   const paperId = localStorage.getItem("paperId");
   const [questionList, setQuestionList] = useState([]);
   const studentId = localStorage.getItem("studentId");
-  const [modalIsOpen, setModalIsOpen] = useState(false); // State to control modal visibility
-  const [modalMessage, setModalMessage] = useState(""); // State to control modal visibility
+  const [timeOutModalIsOpen, setTimeOutModalIsOpen] = useState(false); // State to control modal visibility
+  const [submitModalIsOpen, setSubmitModalIsOpen] = useState(false); // State to control modal visibility
+  const [modalMessage, setModalMessage] = useState(""); // State to control modal message
 
   const { questionId } = useParams();
   const location = useLocation();
@@ -130,22 +131,26 @@ const Navbar = () => {
       }
       if (timeup) {
         setModalMessage(
-          "Test time is up, paper will now be submited automatically please confirm!!"
+          "Test time is up, your paper is submited automatically please exit!!"
         );
-        setModalIsOpen(true);
+        setTimeOutModalIsOpen(true);
+        await onSubmit({ timeup: true });
       } else {
         setModalMessage("Are you sure you want to submit?");
-        setModalIsOpen(true);
+        setSubmitModalIsOpen(true);
       }
     } catch (error) {
       console.error("Error during submission:", error);
     }
   };
 
-  const onSubmit = async () => {
-    await submitResponse();
-    navigate("/");
-    setModalIsOpen(false);
+  const onSubmit = async ({ timeup = false }) => {
+    await submitResponse({ontimeOut: true});
+    if (!timeup) {
+      navigate("/");
+      setTimeOutModalIsOpen(false);
+    }
+    setSubmitModalIsOpen(false);
   };
 
   useEffect(() => {
@@ -248,10 +253,21 @@ const Navbar = () => {
       </div>
       {sidebarOpen && <div className="overlay" onClick={toggleSidebar}></div>}
       <AlertModal
-        isOpen={modalIsOpen}
+        isOpen={submitModalIsOpen}
         isConfirm={true}
         onConfirm={() => onSubmit()}
-        onClose={() => setModalIsOpen(false)}
+        onClose={() => setSubmitModalIsOpen(false)}
+        message={modalMessage}
+        iserror={false}
+      />
+      <AlertModal
+        isOpen={timeOutModalIsOpen}
+        isConfirm={false}
+        onClose={() => {
+          setTimeOutModalIsOpen(false);
+          localStorage.clear();
+          navigate("/");
+        }}
         message={modalMessage}
         iserror={false}
       />
