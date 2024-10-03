@@ -3,6 +3,9 @@ import axios from "axios";
 import { Editor as Ed } from "@monaco-editor/react"; 
 import "./SubmitPage.css"; 
 import Navbar from "../Navbar/Navbar";
+import { MdOutlineCheck } from "react-icons/md";
+import { RxCross2 } from "react-icons/rx";
+import { AiFillWarning } from "react-icons/ai";
 
 const SubmitPage = () => {
   const [questions, setQuestions] = useState([]);
@@ -96,10 +99,11 @@ const SubmitPage = () => {
                   dangerouslySetInnerHTML={{
                     __html: question.questionDescription.replace(/[#*_]/g, ""),
                   }}
-                ></p>
+                >
+                </p>
 
                 <div className="submitpage_editor-section">
-                  <h3>Submitted Code</h3>
+                  <h3>Submitted Code:</h3>
 
                   <Ed
                     theme="vs-dark"
@@ -119,7 +123,22 @@ const SubmitPage = () => {
                     .replace(/\s+/g, "-")
                     .toLowerCase()}`}
                 >
-                  Status: {getStatus(question)}
+                  {
+                      getStatus(question) === "Attempted" ? (
+                        <MdOutlineCheck />
+                      ):(
+                        getStatus(question) === "Not Attempted" ? (
+                          <RxCross2 />
+                        ):(
+                          getStatus(question) === "Attempted but Not Run" ? (
+                            <AiFillWarning />
+                          ): <></>
+                        )
+                      )
+                  }
+                  <div className="submitpage_statushead">
+                    Status: {getStatus(question)}
+                  </div>
                 </div>
               </div>
             );
