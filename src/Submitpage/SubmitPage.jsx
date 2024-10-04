@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Editor as Ed } from "@monaco-editor/react"; 
-import "./SubmitPage.css"; 
+import { Editor as Ed } from "@monaco-editor/react";
+import "./SubmitPage.css";
 import Navbar from "../Navbar/Navbar";
 import { MdOutlineCheck } from "react-icons/md";
 import { RxCross2 } from "react-icons/rx";
 import { AiFillWarning } from "react-icons/ai";
+import ReactMarkdown from "react-markdown";
 
 const SubmitPage = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const paperId = localStorage.getItem("paperId");
-
 
   const fetchQuestionDetails = async () => {
     try {
@@ -38,7 +38,6 @@ const SubmitPage = () => {
     fetchQuestionDetails();
   }, []);
 
-
   const getStatus = (question) => {
     const code = localStorage.getItem(`code_${question._id}`);
     const runHistory =
@@ -53,14 +52,11 @@ const SubmitPage = () => {
     return "Not Attempted";
   };
 
-
   const handleEditorDidMount = (editor) => {
     console.log("Editor mounted", editor);
   };
 
-
   const handleCardClick = (e, questionId) => {
-
     if (!e.target.closest(".monaco-editor")) {
       window.location.href = `/compiler/${questionId}`;
     }
@@ -78,14 +74,32 @@ const SubmitPage = () => {
           <p>No questions available.</p>
         ) : (
           questions.map((question) => {
-            const userCode = localStorage.getItem(`code_${question._id}`) || ""; 
+            const userCode = localStorage.getItem(`code_${question._id}`) || "";
 
             return (
               <div
                 key={question._id}
                 className="submitpage_question-card"
-                onClick={(e) => handleCardClick(e, question._id)} 
+                onClick={(e) => handleCardClick(e, question._id)}
               >
+                <div
+                  className={`submitpage_status ${getStatus(question)
+                    .replace(/\s+/g, "-")
+                    .toLowerCase()}`}
+                >
+                  {getStatus(question) === "Attempted" ? (
+                    <MdOutlineCheck />
+                  ) : getStatus(question) === "Not Attempted" ? (
+                    <RxCross2 />
+                  ) : getStatus(question) === "Attempted but Not Run" ? (
+                    <AiFillWarning />
+                  ) : (
+                    <></>
+                  )}
+                  <div className="submitpage_statushead">
+                    Status: {getStatus(question)}
+                  </div>
+                </div>
                 <span className="submitpage_question-heading-block">
                   <h2 className="submitpage_question-heading">
                     {question.questionheading}
@@ -94,13 +108,14 @@ const SubmitPage = () => {
                     {question.marks} marks
                   </p>
                 </span>
-                <p
+                <ReactMarkdown
                   className="submitpage_question-description"
-                  dangerouslySetInnerHTML={{
-                    __html: question.questionDescription.replace(/[#*_]/g, ""),
-                  }}
+                  // dangerouslySetInnerHTML={{
+                  //   __html: question.questionDescription.replace(/[#*_]/g, ""),
+                  // }}
                 >
-                </p>
+                  {question.questionDescription.replace(/[#*_]/g, "")}
+                </ReactMarkdown>
 
                 <div className="submitpage_editor-section">
                   <h3>Submitted Code:</h3>
@@ -113,32 +128,9 @@ const SubmitPage = () => {
                     onMount={handleEditorDidMount}
                     options={{
                       readOnly: true, // Ensure the editor is read-only
-                      domReadOnly: true, 
+                      domReadOnly: true,
                     }}
                   />
-                </div>
-
-                <div
-                  className={`submitpage_status ${getStatus(question)
-                    .replace(/\s+/g, "-")
-                    .toLowerCase()}`}
-                >
-                  {
-                      getStatus(question) === "Attempted" ? (
-                        <MdOutlineCheck />
-                      ):(
-                        getStatus(question) === "Not Attempted" ? (
-                          <RxCross2 />
-                        ):(
-                          getStatus(question) === "Attempted but Not Run" ? (
-                            <AiFillWarning />
-                          ): <></>
-                        )
-                      )
-                  }
-                  <div className="submitpage_statushead">
-                    Status: {getStatus(question)}
-                  </div>
                 </div>
               </div>
             );
