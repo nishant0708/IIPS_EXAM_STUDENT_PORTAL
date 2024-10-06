@@ -144,15 +144,14 @@ const Navbar = () => {
     }
   };
 
-  const onSubmit = async ({ timeup = false }) => {
-    await submitResponse({ontimeOut: true});
+  const onSubmit = async ({ timeup = false } = {}) => {
+    await submitResponse({ ontimeOut: timeup });
     if (!timeup) {
       navigate("/");
       setTimeOutModalIsOpen(false);
     }
     setSubmitModalIsOpen(false);
   };
-
   useEffect(() => {
     fetchCurrentQuestion();
   }, [questionId, questionList]);

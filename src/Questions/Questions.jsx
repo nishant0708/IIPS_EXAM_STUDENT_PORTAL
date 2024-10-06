@@ -7,13 +7,14 @@ import "./Questions.css";
 const Questions = ({ question }) => {
   const questionRef = useRef(null); // Reference for .compiler-questions
   const [isSmallWidth, setIsSmallWidth] = useState(false); // State to track if width < 150px
+  const [isLoading, setIsLoading] = useState(true); // Loading state
 
   // useEffect to observe the width of .compiler-questions
   useEffect(() => {
     const observer = new ResizeObserver((entries) => {
       if (questionRef.current) {
         const { width } = entries[0].contentRect;
-        setIsSmallWidth(width <=200); // Set state based on width < 150px
+        setIsSmallWidth(width <= 200); // Set state based on width < 150px
       }
     });
 
@@ -28,11 +29,14 @@ const Questions = ({ question }) => {
       }
       observer.disconnect();
     };
-  }); // Empty dependency array ensures it runs once after the first render
+  }, []);
 
-  if (!question) {
-    return <div>Loading question...</div>;
-  }
+  // Simulate data fetching with a timeout
+  useEffect(() => {
+    if (question) {
+      setIsLoading(false); // Data has been fetched, turn off loading
+    }
+  }, [question]);
 
   return (
     <>
@@ -48,8 +52,12 @@ const Questions = ({ question }) => {
             <div className="questions-header">
               <MdReportProblem />
               Problem
-              <p className="question_marks_body">{question?.marks} mark</p>
+              <p className="question_marks_body">{question?.marks || 0} mark</p>
             </div>
+           { isLoading ? (
+          // Show loading state when data is still being fetched
+          <div>Loading question...</div>
+        ) :(
             <div className="questions-content">
               <div className="content-heading">{question.questionheading}</div>
               <br />
@@ -67,7 +75,7 @@ const Questions = ({ question }) => {
                   <br />
                 </>
               )}
-            </div>
+            </div>)}
           </div>
         )}
       </div>

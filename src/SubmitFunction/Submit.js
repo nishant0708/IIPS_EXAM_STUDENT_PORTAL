@@ -1,6 +1,14 @@
 import axios from "axios";
+let isSubmitting = false; // Flag to prevent multiple submissions
 
 export const submitResponse = async ({ ontimeOut = false }) => {
+  if (isSubmitting) {
+    // Prevent multiple calls
+    return;
+  }
+
+  isSubmitting = true; // Set the flag to indicate submission has started
+
   try {
     // Get teacherId, studentId, and paperId from local storage
     const teacherId = localStorage.getItem("teacherId");
@@ -53,15 +61,18 @@ export const submitResponse = async ({ ontimeOut = false }) => {
 
         // Redirect to the home page
         window.location.href = "/";
-      }else{
-        localStorage.removeItem("teacherId")
-        localStorage.removeItem("studentId")
-        localStorage.removeItem("paperId")
+      } else {
+        // In case of timeout, selectively clear storage items
+        localStorage.removeItem("teacherId");
+        localStorage.removeItem("studentId");
+        localStorage.removeItem("paperId");
       }
     } else {
       console.error("Failed to submit response:", submitResponse.statusText);
     }
   } catch (error) {
     console.error("Error submitting response:", error);
+  } finally {
+    isSubmitting = false; // Reset the flag after submission completes
   }
 };
