@@ -26,3 +26,18 @@
   width: 92%;
   overflow-wrap: break-word; 
 }
+.test-output .stdout-output {
+  color:#cccc;
+  font-family: monospace;
+}
+.stdout-output p{
+  line-height: 1;
+}
+
+.test-output .stderr-output {
+  color: #d20000;
+  font-family: monospace;
+}
+.stderr-output p{
+  line-height: 1;
+}
