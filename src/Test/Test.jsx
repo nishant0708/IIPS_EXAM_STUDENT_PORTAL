@@ -8,7 +8,8 @@ import remarkBreaks from "remark-breaks";
 
 const Test = ({ output }) => {
   // Split stdout and stderr
-  const stdout = output.stdout || "";
+  console.log(output);
+  const stdout = output?.stdout ||  "";
   const stderr = output.stderr || "";
 
   return (
@@ -25,6 +26,7 @@ const Test = ({ output }) => {
             remarkPlugins={[remarkBreaks]}
             rehypePlugins={[rehypeSanitize]}
           >
+            
             {stdout}
           </ReactMarkdown>
         )}

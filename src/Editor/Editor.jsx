@@ -158,7 +158,10 @@ const Editor = ({ question, onOutput }) => {
         input: inputValue || "",
       });
 
-      const output = res.data.output || res.data.stderr;
+      const output = {
+        stdout: res.data.stdout || "",
+        stderr: res.data.stderr || ""
+      };
       setUserOutput(output);
       onOutput(output);
 
