@@ -13,7 +13,7 @@ const Compiler = () => {
     const fetchQuestion = async () => {
       try {
         // POST request to send questionId in the body
-        const response = await axios.post("http://localhost:5000/student/getQuestionById", {
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/student/getQuestionById`, {
           questionId: questionId, // Send questionId in the body
         });
         setQuestion(response.data.question); // Set the fetched question

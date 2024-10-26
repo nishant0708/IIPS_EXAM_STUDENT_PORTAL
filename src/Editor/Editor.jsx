@@ -121,7 +121,7 @@ const Editor = ({ question, onOutput }) => {
 
     setLoading(true);
     try {
-      const res = await axios.post(`http://localhost:5000/student/compile`, {
+      const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/student/compile`, {
         code: code,
         language: question?.compilerReq,
         input: input || "",
@@ -152,7 +152,7 @@ const Editor = ({ question, onOutput }) => {
   const executeCode = async (inputValue) => {
     setLoading(true);
     try {
-      const res = await axios.post(`http://localhost:5000/student/compile`, {
+      const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/student/compile`, {
         code: userCode,
         language: question?.compilerReq,
         input: inputValue || "",

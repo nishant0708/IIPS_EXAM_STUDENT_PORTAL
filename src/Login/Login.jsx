@@ -61,7 +61,7 @@ function Login() {
       }
 
       try {
-        const response = await fetch("http://localhost:5000/student/login", {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/student/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -18,7 +18,7 @@ const RulesPage = () => {
   const fetchPaperDetails = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/paper/getReadyPaperDetailsByPaperId",
+        `${process.env.REACT_APP_BACKEND_URL}/paper/getReadyPaperDetailsByPaperId`,
         { paperId }
       );
       setPaper(response.data[0]);
@@ -67,7 +67,7 @@ const RulesPage = () => {
       try {
         // Call the API to get the first question
         const response = await axios.post(
-          `http://localhost:5000/student/getFirstQuestionByPaperId`,
+          `${process.env.REACT_APP_BACKEND_URL}/student/getFirstQuestionByPaperId`,
           { paperId }
         );
         const firstQuestion = response?.data?.question;

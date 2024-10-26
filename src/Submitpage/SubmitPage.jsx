@@ -17,7 +17,7 @@ const SubmitPage = () => {
   const fetchQuestionDetails = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/student/getQuestionByPaperId",
+        `${process.env.REACT_APP_BACKEND_URL}/student/getQuestionByPaperId`,
         { paperId }
       );
 

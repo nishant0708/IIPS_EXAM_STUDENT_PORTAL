@@ -48,7 +48,7 @@ const Navbar = () => {
   const fetchPaperDetails = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/paper/getReadyPaperDetailsByPaperId",
+        `${process.env.REACT_APP_BACKEND_URL}/paper/getReadyPaperDetailsByPaperId`,
         { paperId }
       );
       const paper = response.data[0];
@@ -64,7 +64,7 @@ const Navbar = () => {
   const fetchQuestionDetails = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/student/getQuestionByPaperId",
+        `${process.env.REACT_APP_BACKEND_URL}/student/getQuestionByPaperId`,
         { paperId }
       );
       const sortedQuestions = response.data.questions.sort(
@@ -79,7 +79,7 @@ const Navbar = () => {
   const fetchStudentDetails = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/student/getStudentDetailsByStudentId",
+        `${process.env.REACT_APP_BACKEND_URL}/student/getStudentDetailsByStudentId`,
         { studentId }
       );
       const { student } = response.data;
@@ -110,7 +110,7 @@ const Navbar = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/student/getQuestionNavigation",
+        `${process.env.REACT_APP_BACKEND_URL}/student/getQuestionNavigation`,
         {
           questionId,
           direction,

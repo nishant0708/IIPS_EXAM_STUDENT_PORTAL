@@ -21,7 +21,7 @@ export const submitResponse = async ({ ontimeOut = false }) => {
 
     // Fetch all question IDs by paperId
     const response = await axios.post(
-      "http://localhost:5000/student/getQuestionByPaperId",
+      `${process.env.REACT_APP_BACKEND_URL}/student/getQuestionByPaperId`,
       { paperId }
     );
     const questions = response.data.questions;
@@ -48,7 +48,7 @@ export const submitResponse = async ({ ontimeOut = false }) => {
     };
 
     const submitResponse = await axios.post(
-      "http://localhost:5000/student/submitResponse",
+      `${process.env.REACT_APP_BACKEND_URL}/student/submitResponse`,
       submissionPayload
     );
 
