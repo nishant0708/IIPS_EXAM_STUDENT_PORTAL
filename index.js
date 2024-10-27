@@ -1,22 +1,39 @@
-const { app, BrowserWindow, Menu, globalShortcut } = require('electron');
-const axios = require('axios'); // Add axios for HTTP requests
+const { app, BrowserWindow, Menu, globalShortcut } = require("electron");
+const path = require("path");
+const axios = require("axios");
+
+require("dotenv").config(); // Load environment variables
 
 let mainWindow;
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
+console.log(backendUrl);
 
+// Function to submit the paper when cheating is detected
 async function submitPaper() {
-  const start = await mainWindow.webContents.executeJavaScript('localStorage.getItem("start")');
-
-  // Proceed with submission only if "start" is true
-  if (start === "true") {
-    const paperId = await mainWindow.webContents.executeJavaScript('localStorage.getItem("paperId")');
-    try {
-      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/student/submitPaper`, { paperId });
-      console.log("Paper has been submitted because cheating has been detected.");
-    } catch (error) {
-      console.error("Error submitting paper:", error);
+  try {
+    const start = await mainWindow.webContents.executeJavaScript('localStorage.getItem("start")');
+    if (start !== "true") {
+      console.log("Submission skipped: 'start' is not set to 'true'.");
+      return;
     }
-  } else {
-    console.log("Submission skipped: 'start' is not true.");
+
+    const paperId = await mainWindow.webContents.executeJavaScript('localStorage.getItem("paperId")');
+    if (!paperId) {
+      console.error("Paper ID not found in localStorage.");
+      return;
+    }
+
+  
+    if (!backendUrl) {
+      console.error("Backend URL is not defined. Check .env file.");
+      return;
+    }
+
+    await axios.post(`${backendUrl}/student/submitPaper`, { paperId });
+    console.log("Paper has been submitted because cheating has been detected.");
+  } catch (error) {
+    console.log(backendUrl);
+    console.error("Error submitting paper:", error.message || error);
   }
 }
 
@@ -25,51 +42,57 @@ function createWindow() {
     fullscreen: true,
     kiosk: true,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      preload: path.join(__dirname, "preload.js"), // Preload script
+      nodeIntegration: false, // Security enhancement
+      contextIsolation: true, // Isolates browser context
     },
   });
 
-  mainWindow.loadURL('http://localhost:3000');
-  mainWindow.webContents.on('context-menu', (e) => e.preventDefault());
-  
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
+  // Clear localStorage before loading the URL
+  mainWindow.webContents.executeJavaScript('localStorage.clear();')
+    .then(() => console.log("Local storage cleared on app start"))
+    .catch((error) => console.error("Error clearing local storage:", error));
 
-  mainWindow.on('blur', () => {
-    // On losing focus, submit the paper and refocus the window
+  mainWindow.loadURL("http://localhost:3001");
+
+  // Prevent right-click menu
+  mainWindow.webContents.on("context-menu", (e) => e.preventDefault());
+
+  // Event handler for losing window focus (cheating detection)
+  mainWindow.on("blur", () => {
     submitPaper();
-    setTimeout(() => mainWindow.focus(), 0);
+    setTimeout(() => mainWindow.focus(), 0); // Refocus the window
   });
 
-  mainWindow.on('close', async (e) => {
-    e.preventDefault(); // Prevent default close
-    await submitPaper(); // Submit the paper if conditions are met
-    app.quit(); // Quit the app after submission
+  // Event handler for window close (submitting paper before closing)
+  mainWindow.on("close", async (e) => {
+    e.preventDefault();
+    await submitPaper();
+    app.quit();
   });
 }
 
-app.on('ready', () => {
+app.on("ready", () => {
   createWindow();
-  Menu.setApplicationMenu(null);
+  Menu.setApplicationMenu(null); // Remove default menu
 
-  // Registering global shortcuts to prevent common exit keys
-  const preventExitKeys = ['Alt+F4', 'CommandOrControl+W', 'F11'];
+  // Global shortcuts to prevent exit keys
+  const preventExitKeys = ["Alt+F4", "CommandOrControl+W", "F11"];
   preventExitKeys.forEach((key) => {
     globalShortcut.register(key, () => mainWindow.focus());
   });
 
-  if (process.platform === 'win32') {
-    globalShortcut.register('Alt+Tab', () => mainWindow.focus());
-    globalShortcut.register('CommandOrControl+Tab', () => mainWindow.focus());
+  // Additional shortcut configurations for Windows (optional)
+  if (process.platform === "win32") {
+    globalShortcut.register("Alt+Tab", () => mainWindow.focus());
+    globalShortcut.register("CommandOrControl+Tab", () => mainWindow.focus());
   }
 });
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
 });
 
-app.on('activate', () => {
+app.on("activate", () => {
   if (mainWindow === null) createWindow();
 });

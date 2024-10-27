@@ -5,10 +5,13 @@ import { Editor as Ed } from "@monaco-editor/react";
 import { FaCode, FaPlay } from "react-icons/fa";
 import axios from "axios";
 import Modal from "react-modal";
+import { loader } from "@monaco-editor/react";
+
 
 Modal.setAppElement("#root");
 
 const Editor = ({ question, onOutput }) => {
+
   const editorContainerRef = useRef(null);
   const editorRef = useRef(null);
   const [input, setInput] = useState("");
@@ -19,6 +22,14 @@ const Editor = ({ question, onOutput }) => {
 
   const localStorageKey = `code_${question?._id}`;
   const runHistoryKey = `runHistory_${question?._id}`;
+
+  useEffect(() => {
+    if (window.monacoConfig) {
+      loader.config({ paths: { vs: window.monacoConfig.getMonacoPath() } });
+    } else {
+      console.error("Monaco configuration not available in window context.");
+    }
+  }, []);
 
   // Load stored code and runs from localStorage on mount
   useEffect(() => {

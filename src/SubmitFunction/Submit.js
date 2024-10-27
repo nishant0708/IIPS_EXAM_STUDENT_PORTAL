@@ -63,6 +63,7 @@ export const submitResponse = async ({ ontimeOut = false }) => {
         window.location.href = "/";
       } else {
         // In case of timeout, selectively clear storage items
+        localStorage.clear();
         localStorage.removeItem("teacherId");
         localStorage.removeItem("studentId");
         localStorage.removeItem("paperId");

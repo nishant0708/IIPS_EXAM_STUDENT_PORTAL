@@ -7,12 +7,22 @@ import { MdOutlineCheck } from "react-icons/md";
 import { RxCross2 } from "react-icons/rx";
 import { AiFillWarning } from "react-icons/ai";
 import ReactMarkdown from "react-markdown";
+import { loader } from "@monaco-editor/react";
+
 
 const SubmitPage = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const paperId = localStorage.getItem("paperId");
+
+  useEffect(() => {
+    if (window.monacoConfig) {
+      loader.config({ paths: { vs: window.monacoConfig.getMonacoPath() } });
+    } else {
+      console.error("Monaco configuration not available in window context.");
+    }
+  }, []);
 
   const fetchQuestionDetails = async () => {
     try {
