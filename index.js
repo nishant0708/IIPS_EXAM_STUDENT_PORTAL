@@ -1,13 +1,163 @@
 const { app, BrowserWindow, Menu, globalShortcut } = require("electron");
 const path = require("path");
 const axios = require("axios");
+const { exec } = require("child_process");
+
 require("dotenv").config();
 
 let mainWindow;
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 let isSubmitting = false;
 
-// Function to submit the paper when cheating is detected
+const ahkScriptPath = path.join(__dirname, "disable_keys.ahk");
+exec(`start "" "${ahkScriptPath}"`, (error, stdout, stderr) => {
+  if (error) {
+    console.error(`Error starting AHK script: ${error.message}`);
+    return;
+  }
+  console.log("AHK script started successfully.");
+});
+
+function terminateAutoHotkeyProcesses() {
+  console.log('hiii');
+  exec('taskkill /IM AutoHotkey64.exe /F', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error terminating AutoHotkey64: ${error.message}`);
+    } else {
+      console.log("AutoHotkey64 terminated successfully.");
+    }
+  });
+
+  exec('taskkill /IM AutoHotkey32.exe /F', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error terminating AutoHotkey32: ${error.message}`);
+    } else {
+      console.log("AutoHotkey32 terminated successfully.");
+    }
+  });
+}
+
+const processesToClose = [
+
+  "discord.exe",
+  "zoom.exe",
+  "Teams.exe",
+  "Telegram.exe",
+  "WhatsApp.exe",
+  "Viber.exe",
+  "Slack.exe",
+  "Skype.exe",
+  "WeChat.exe",
+  "Line.exe",
+  "Messenger.exe",         
+  "Signal.exe",
+  "WINWORD.exe",
+
+  "chrome.exe",
+  "msedge.exe",
+  "firefox.exe",
+  "opera.exe",
+  "brave.exe",
+  "Safari.exe",
+  "vivaldi.exe",
+  "chromium.exe",
+
+  "spotify.exe",
+  "YouTube.exe",           
+  "Netflix.exe",
+  "PrimeVideo.exe",
+  "Twitch.exe",
+  "Hulu.exe",
+  "DisneyPlus.exe",
+  "TikTok.exe",
+  "Snapchat.exe",
+  "RiotClientServices.exe",
+  "steam.exe",
+  "EpicGamesLauncher.exe",
+
+
+  "TeamViewer.exe",
+  "AnyDesk.exe",
+  "LogMeIn.exe",
+  "RemotePC.exe",
+  "ZoomIt.exe",           
+  "BlueJeans.exe",
+  "GoToMeeting.exe",
+  "JoinMe.exe",
+  "Webex.exe",    
+  "obs64.exe",
+  "obs32.exe",
+  "obs.exe",         
+
+  "Dropbox.exe",
+  "OneDrive.exe",
+  "GoogleDrive.exe",
+  "iCloud.exe",
+  "BoxSync.exe",          
+
+  "notepad.exe",
+  "notepad++.exe",
+  "Evernote.exe",
+  "Obsidian.exe",
+  "OneNote.exe",
+  "Notion.exe",            
+  "Todoist.exe",
+  "MicrosoftWord.exe",     
+  "Scrivener.exe",
+
+
+  "AcroRd32.exe",        
+  "FoxitReader.exe",
+  "SumatraPDF.exe",
+  "NitroPDF.exe",
+  "Preview.exe",         
+
+  // "code.exe",              // Visual Studio Code
+  "Atom.exe",
+  "PyCharm.exe",
+  "IntelliJ.exe",
+  "CLion.exe",
+  "eclipse.exe",
+  "sublime_text.exe",
+  "NetBeans.exe",
+  "RStudio.exe",   
+  "MATLAB.exe",
+  "devcpp.exe",          
+  "Xcode.exe",
+
+
+  "GeoGebra.exe",
+  "WolframMathematica.exe",
+  "Maple.exe",          
+  "Mathematica.exe",
+  "SPSS.exe",          
+  "Minitab.exe",
+  "SAS.exe",           
+
+  "VirtualBox.exe",
+  "vmware.exe",
+  "BlueStacks.exe", 
+  "Nox.exe",
+
+  "Photoshop.exe",
+  "GIMP.exe",
+  "Illustrator.exe",
+  "Paint.exe",
+  "SnippingTool.exe",
+  "Lightshot.exe",
+  "Greenshot.exe"
+];
+
+processesToClose.forEach((process) => {
+  exec(`taskkill /IM ${process} /F`, (error, stdout, stderr) => {
+    if (error) {
+      // console.error(`Failed to kill ${process}: ${error.message}`);
+    } else {
+      console.log(`Successfully terminated ${process}`);
+    }
+  });
+});
+
 async function submitPaper() {
   if (isSubmitting) return;
 
@@ -56,9 +206,7 @@ async function submitPaper() {
     if (submitResponse.status === 200) {
       console.log("Paper submitted because of cheating");
       await mainWindow.webContents.executeJavaScript('localStorage.clear();');
-      // Navigate to the root route
       await mainWindow.webContents.executeJavaScript('window.location.href = "/"');
-      // Show the success modal
       mainWindow.webContents.send("open-modal", { message: "Response submitted successfully!", isError: false });
      
     } else {
@@ -86,21 +234,17 @@ function createWindow() {
 
   mainWindow.webContents.session.clearStorageData({ storages: ["localstorage"] }).then(() => {
     console.log("Local storage cleared");
-    mainWindow.loadURL("http://localhost:3000");
+    mainWindow.loadURL("https://iips-exam-student-portal.vercel.app");
   });
-
-  // Flag to check if window regained focus shortly after blur
   let blurTimeout;
 
   mainWindow.on("blur", () => {
-    // Set a timeout before submitting to check if the window regains focus
     blurTimeout = setTimeout(() => {
       submitPaper();
     }, 500); // Adjust delay as needed
   });
 
   mainWindow.on("focus", () => {
-    // Clear the blur timeout if the window regains focus quickly
     if (blurTimeout) {
       clearTimeout(blurTimeout);
       blurTimeout = null;
@@ -113,10 +257,10 @@ function createWindow() {
     app.quit();
   });
 }
+
 app.on("ready", () => {
   createWindow();
   Menu.setApplicationMenu(null);
-
   const preventExitKeys = ["Alt+F4", "CommandOrControl+W", "F11"];
   preventExitKeys.forEach((key) => {
     globalShortcut.register(key, () => mainWindow.focus());
@@ -129,9 +273,19 @@ app.on("ready", () => {
 });
 
 app.on("window-all-closed", () => {
+  terminateAutoHotkeyProcesses();
   if (process.platform !== "darwin") app.quit();
+});
+
+app.on("before-quit", () => {
+  terminateAutoHotkeyProcesses(); // Terminate AHK script when app is quitting
 });
 
 app.on("activate", () => {
   if (mainWindow === null) createWindow();
+});
+
+process.on("SIGINT", () => {
+  terminateAutoHotkeyProcesses();
+  process.exit();
 });

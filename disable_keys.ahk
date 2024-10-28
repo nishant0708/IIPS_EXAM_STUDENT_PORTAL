@@ -10,3 +10,6 @@ RWin::Return
 
 ; Disable Alt+F4
 !F4::Return
+
+; Disable Print Screen
+PrintScreen::Return
