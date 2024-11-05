@@ -1,58 +1,119 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import "./verification.css";
 
 const Verification = () => {
-  const [testStatus, setTestStatus] = useState('Not Started');
+  const [deviceStatus, setDeviceStatus] = useState({
+    camera: false,
+    audio: false,
+    checking: true
+  });
+  const [testStatus, setTestStatus] = useState('Checking devices...');
+  const [isRecording, setIsRecording] = useState(false);
 
-  // Start the test and check the status periodically
-  const startTest = () => {
-    fetch('http://127.0.0.1:5000/start_test')
+  useEffect(() => {
+    checkDevices();
+  }, []);
+
+  const checkDevices = () => {
+    fetch('http://127.0.0.1:5000/initialize_devices')
       .then((response) => response.json())
       .then((data) => {
-        setTestStatus('In Progress');
-        console.log(data);
+        setDeviceStatus({
+          camera: data.camera_ready,
+          audio: data.audio_ready,
+          checking: false
+        });
+        
+        if (data.camera_ready && data.audio_ready) {
+          setTestStatus('Devices ready! You can start the test.');
+        } else {
+          setTestStatus('Some devices are not ready. Please check your camera and microphone permissions.');
+        }
+      })
+      .catch((error) => {
+        console.error('Error checking devices:', error);
+        setTestStatus('Error checking devices. Please refresh the page.');
+        setDeviceStatus(prev => ({ ...prev, checking: false }));
+      });
+  };
 
+  const startTest = () => {
+    if (!deviceStatus.camera || !deviceStatus.audio) {
+      alert('Please ensure both camera and microphone are working before starting the test.');
+      return;
+    }
+
+    setIsRecording(true);
+    setTestStatus('Recording in progress...');
+
+    fetch('http://127.0.0.1:5000/start_test')
+      .then(() => {
+        // Start polling for test status
         const intervalId = setInterval(() => {
           fetch('http://127.0.0.1:5000/check_test_status')
             .then((response) => response.json())
-            .then((data) => {
-              if (data.test_ready) {
-                setTestStatus('Ready. You can start the test!');
-                clearInterval(intervalId);  // Stop checking once the test is ready
+            .then((statusData) => {
+              if (statusData.recording_in_progress) {
+                setTestStatus('Recording in progress... Please wait');
+              } else if (statusData.test_ready) {
+                setTestStatus('Recording completed! You can now proceed with the test.');
+                setIsRecording(false);
+                clearInterval(intervalId);
               }
             });
-        }, 1000);  // Check test status every 1 second
+        }, 1000);
+      })
+      .catch((error) => {
+        console.error('Error starting test:', error);
+        setTestStatus('Error starting test. Please try again.');
+        setIsRecording(false);
       });
   };
 
   return (
     <div className="verification_container">
       <div className="verification_instructions">
-        <h2 className="verification_instructions_heading">Instructions :</h2>
+        <h2 className="verification_instructions_heading">Instructions:</h2>
         <p className="verification_instructions_text">
-          Follow the steps below to ensure your webcam and audio are working properly:
+          System will check your devices and prepare for the test:
         </p>
         <ul className="verification_instructions_list">
-          <li>Allow permission for webcam access.</li>
-          <li>Both webcam and audio tests will be conducted automatically.</li>
-          <li>Once the tests are complete, you will be ready to take the test.</li>
+          <li>Camera Status: {deviceStatus.camera ? '✅ Ready' : '⏳ Checking...'}</li>
+          <li>Microphone Status: {deviceStatus.audio ? '✅ Ready' : '⏳ Checking...'}</li>
+          <li>Once both devices are ready, you can start the test</li>
+          <li>The system will record 5 seconds of video and audio</li>
         </ul>
       </div>
 
       <h3 className="verification_webcam_heading">Webcam Feed</h3>
-      {/* Directly stream the video feed from Flask */}
       <img
         id="verification_webcam"
         className="verification_webcam"
-        src="http://127.0.0.1:5000/video_feed"  // Directly set the stream URL
+        src="http://127.0.0.1:5000/video_feed"
         alt="Webcam feed"
       />
 
-      <button className="verification_start_test_btn" onClick={startTest}>
-        Start Webcam and Audio Test
-      </button>
+      {!deviceStatus.checking && deviceStatus.camera && deviceStatus.audio && (
+        <button 
+          className="verification_start_test_btn"
+          onClick={startTest}
+          disabled={isRecording}
+        >
+          {isRecording ? 'Recording in Progress...' : 'Start Test'}
+        </button>
+      )}
+
+      {!deviceStatus.checking && (!deviceStatus.camera || !deviceStatus.audio) && (
+        <button 
+          className="verification_retry_btn"
+          onClick={checkDevices}
+        >
+          Retry Device Check
+        </button>
+      )}
+
       <div className="verification_test_status">
-        Test Status: {testStatus}
+        Status: {testStatus}
       </div>
     </div>
   );
