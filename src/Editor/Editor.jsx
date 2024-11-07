@@ -229,7 +229,7 @@ const Editor = ({ question, onOutput }) => {
       >
         <div className="modal-content">
           <h2>Input Required</h2>
-          <label>Enter Input:</label>
+          <label>Enter Input:(For multiple inputs, separate them by spaces.)</label>
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
