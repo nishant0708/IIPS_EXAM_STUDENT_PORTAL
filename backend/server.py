@@ -1,251 +1,307 @@
-from flask import Flask, render_template, Response, jsonify, request
+from flask import Flask, Response, jsonify, request
 import cv2
-from mtcnn.mtcnn import MTCNN
-import pyaudio
-import wave
 import threading
-import speech_recognition as sr
+import time
 import cloudinary
 import cloudinary.uploader
-import random
-import os
-import time
 from flask_cors import CORS
+from ultralytics import YOLO
 import os
+from datetime import datetime
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app)
 
-# Initialize global variables
-cap = None
-audio = None
-detector = MTCNN()
-recognizer = sr.Recognizer()
-lock = threading.Lock()
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable caching
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024  # 1GB max upload size
 
-# Status flags
-camera_ready = False
-audio_ready = False
-recording_in_progress = False
-test_ready = False
-
-# Cloudinary configuration using environment variables for security
+# Cloudinary configuration
 cloudinary.config(
     cloud_name="duxvbwdf3",
     api_key="282754191399316",
     api_secret="4NYTt_3v2JK7-O0KUN9UwKrAWiE"
 )
 
-def initialize_devices():
-    global cap, audio, camera_ready, audio_ready
-    
+# Global variables
+camera = None
+model = YOLO('yolov8l.pt')
+verification_complete = False
+verification_status = "not_started"
+is_recording = False
+recording_thread = None
+camera_lock = threading.Lock()
+frame_buffer = None
+buffer_lock = threading.Lock()
+buffer_thread = None
+is_streaming = False
+
+
+def initialize_camera():
+    global camera
     try:
-        # Initialize camera
-        if cap is None:
-            cap = cv2.VideoCapture(0)
-            if cap.isOpened():
-                camera_ready = True
-                print("Camera initialized successfully")
-            else:
-                print("Failed to initialize camera")
+        with camera_lock:
+            if camera is not None:
+                camera.release()
+            
+            camera = cv2.VideoCapture(0)
+            if not camera.isOpened():
                 return False
-        
-        # Initialize audio
-        if audio is None:
-            audio = pyaudio.PyAudio()
-            try:
-                # Test audio input
-                stream = audio.open(
-                    format=pyaudio.paInt16,
-                    channels=1,
-                    rate=16000,
-                    input=True,
-                    frames_per_buffer=1024,
-                    start=False
-                )
-                stream.close()
-                audio_ready = True
-                print("Audio initialized successfully")
-            except Exception as e:
-                print(f"Failed to initialize audio: {e}")
+                
+            camera.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+            camera.set(cv2.CAP_PROP_FPS, 10)
+            
+            ret, frame = camera.read()
+            if not ret:
+                camera.release()
+                camera = None
                 return False
-        
-        return camera_ready and audio_ready
-    
+                
+            return True
     except Exception as e:
-        print(f"Error initializing devices: {e}")
+        print(f"Camera initialization error: {e}")
+        if camera is not None:
+            camera.release()
+            camera = None
         return False
 
-def record_video(name, papercode, duration=5):
-    global recording_in_progress
+def detect_face(frame):
+    results = model(frame)
+    for result in results:
+        for box in result.boxes:
+            if box.conf[0] > 0.5 and box.cls[0] == 0:  # class 0 is person in COCO
+                return True
+    return False
+
+def verify_person():
+    global verification_complete, verification_status, is_streaming
+    frame_count = 0
+    person_visible_frames = 0
+    verification_status = "in_progress"
     
-    try:
-        recording_in_progress = True
-        file_basename = f"{name}_{papercode}"
-        temp_filename = f"{file_basename}_video.mp4"
-        
-        frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(temp_filename, fourcc, 20.0, (frame_width, frame_height))
-        
-        start_time = time.time()
-        while time.time() - start_time < duration:
-            with lock:
-                ret, frame = cap.read()
-                if not ret:
-                    break
+    while frame_count < 30 and not verification_complete:
+        with camera_lock:
+            if camera is None or not camera.isOpened():
+                verification_status = "failed"
+                return False
                 
-                # Detect faces in the frame using MTCNN
-                faces = detector.detect_faces(frame)
+            ret, frame = camera.read()
+            if not ret:
+                verification_status = "failed"
+                return False
+            
+            if detect_face(frame):
+                person_visible_frames += 1
+            
+            frame_count += 1
+            
+            if person_visible_frames >= 10:
+                verification_complete = True
+                verification_status = "complete"
+                # Keep streaming active after verification
+                is_streaming = True
+                return True
                 
-                # Draw a box around each detected face
-                for face in faces:
-                    x, y, width, height = face['box']
-                    x2, y2 = x + width, y + height
-                    cv2.rectangle(frame, (x, y), (x2, y2), (0, 255, 0), 2)
-                
-                out.write(frame)
-                    
-        out.release()
-        
-        # Upload to Cloudinary
-        response = cloudinary.uploader.upload(
-            temp_filename,
-            resource_type="video",
-            public_id=f"{file_basename}_video",
-            folder="media"
-        )
-        
-        # Clean up temporary file
-        if os.path.exists(temp_filename):
-            os.remove(temp_filename)
-            
-        recording_in_progress = False
-        return response['secure_url']
+            time.sleep(0.1)
     
-    except Exception as e:
-        print(f"Error recording video: {e}")
-        recording_in_progress = False
-        return None
+    verification_status = "failed"
+    return False
 
-
-def record_audio(name, papercode, duration=5):
-    try:
-        file_basename = f"{name}_{papercode}"
-        filename = f"{file_basename}_audio.wav"
-        
-        stream = audio.open(
-            format=pyaudio.paInt16,
-            channels=1,
-            rate=16000,
-            input=True,
-            frames_per_buffer=1024
-        )
-        
-        frames = []
-        for _ in range(0, int(16000 / 1024 * duration)):
-            data = stream.read(1024)
-            frames.append(data)
-            
-        stream.stop_stream()
-        stream.close()
-        
-        with wave.open(filename, 'wb') as wf:
-            wf.setnchannels(1)
-            wf.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
-            wf.setframerate(16000)
-            wf.writeframes(b''.join(frames))
-            
-        # Upload to Cloudinary
-        response = cloudinary.uploader.upload(
-            filename,
-            resource_type="raw",
-            public_id=f"{file_basename}_audio",
-            folder="media"
-        )
-        
-        # Clean up temporary file
-        if os.path.exists(filename):
-            os.remove(filename)
-            
-        return response['secure_url']
-        
-    except Exception as e:
-        print(f"Error recording audio: {e}")
-        return None
-
-def run_test_recording(name, papercode, login_status):
-    global test_ready
-    try:
-        while login_status:  # Keep recording until the login status is false
-            video_url = record_video(name, papercode)
-            audio_url = record_audio(name, papercode)
-            
-            if video_url and audio_url:
-                test_ready = True
-                return {'status': 'success', 'video_url': video_url, 'audio_url': audio_url}
-            else:
-                return {'status': 'error', 'message': 'Failed to record video or audio'}
-            
-        # If login_status becomes false, stop recording and cleanup
-        return {'status': 'error', 'message': 'Recording stopped due to logout'}
-            
-    except Exception as e:
-        print(f"Error during recording: {e}")
-        return {'status': 'error', 'message': str(e)}
-
-@app.route('/start_test', methods=['POST'])
-def start_test():
-    global test_ready
-    test_ready = False
+def update_frame_buffer():
+    global frame_buffer, camera, is_streaming
     
-    data = request.get_json()
-    name = data.get('name')
-    papercode = data.get('papercode')
-    login_status = data.get('login_status')  # Retrieve login status
+    while is_streaming and camera and camera.isOpened():
+        try:
+            with camera_lock:
+                ret, frame = camera.read()
+                if ret:
+                    frame = cv2.flip(frame, 1)
+                    with buffer_lock:
+                        ret, buffer = cv2.imencode('.jpg', frame)
+                        if ret:
+                            frame_buffer = buffer.tobytes()
+            
+        except Exception as e:
+            print(f"Error in update_frame_buffer: {e}")
+            break
     
-    test_thread = threading.Thread(target=run_test_recording, args=(name, papercode, login_status))
-    test_thread.start()
-    
-    return jsonify({'message': 'Recording started'})
-
-@app.route('/check_test_status')
-def check_test_status():
-    return jsonify({
-        'camera_ready': camera_ready,
-        'audio_ready': audio_ready,
-        'recording_in_progress': recording_in_progress,
-        'test_ready': test_ready
-    })
-
-
-@app.route('/initialize_devices')
-def check_devices():
-    success = initialize_devices()
-    return jsonify({
-        'success': success,
-        'camera_ready': camera_ready,
-        'audio_ready': audio_ready
-    })
+    print("Frame buffer update stopped")
 
 def generate_frames():
-    while True:
-        with lock:
-            if cap is not None and cap.isOpened():
-                success, frame = cap.read()
-                if not success:
-                    break
-                ret, buffer = cv2.imencode('.jpg', frame)
-                frame = buffer.tobytes()
+    global frame_buffer, is_streaming, buffer_thread
+    
+    if not initialize_camera():
+        return
+    
+    is_streaming = True
+    
+    # Start frame buffer update thread
+    buffer_thread = threading.Thread(target=update_frame_buffer)
+    buffer_thread.daemon = True
+    buffer_thread.start()
+    
+    while is_streaming:
+        try:
+            with buffer_lock:
+                if frame_buffer is None:
+                    time.sleep(0.01)
+                    continue
                 yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame_buffer + b'\r\n')
+            time.sleep(0.1)
+        except Exception as e:
+            print(f"Error in generate_frames: {e}")
+            break
+    
+    print("Frame generation stopped")
+
+def record_video(student_id, paper_id, teacher_id):
+    global camera, is_recording
+    
+    try:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        video_path = f'exam_recording_{timestamp}.mp4'
+        
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter(video_path, fourcc, 10.0,
+                            (int(camera.get(3)), int(camera.get(4))))
+        
+        while is_recording and camera and camera.isOpened():
+            with camera_lock:
+                ret, frame = camera.read()
+                if ret:
+                    frame = cv2.flip(frame, 1)
+                    out.write(frame)
+            time.sleep(0.1)
+        
+        out.release()
+        
+        if os.path.exists(video_path) and os.path.getsize(video_path) > 0:
+            public_id = f"exam_recording_{student_id}_{paper_id}_{teacher_id}_{timestamp}"
+            response = cloudinary.uploader.upload(
+                video_path,
+                resource_type="video",
+                public_id=public_id,
+                chunk_size=6000000
+            )
+            os.remove(video_path)
+            return response['secure_url']
+        else:
+            print("No video file created or empty file")
+            return None
+            
+    except Exception as e:
+        print(f"Error recording video: {e}")
+        if os.path.exists(video_path):
+            os.remove(video_path)
+        return None
+
+def cleanup_camera():
+    global camera, is_streaming, is_recording, buffer_thread
+    
+    is_streaming = False
+    is_recording = False
+    
+    if buffer_thread and buffer_thread.is_alive():
+        buffer_thread.join(timeout=1)
+    
+    with camera_lock:
+        if camera is not None:
+            camera.release()
+            camera = None
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(generate_frames(), 
+    global is_streaming
+    
+    if camera is None or not camera.isOpened():
+        if not initialize_camera():
+            return Response('Camera initialization failed', status=500)
+    
+    return Response(generate_frames(),
                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/start_verification', methods=['POST'])
+def start_verification():
+    global verification_complete, verification_status
+    
+    verification_complete = False
+    verification_status = "not_started"
+    
+    if not initialize_camera():
+        return jsonify({
+            'status': 'error',
+            'message': 'Failed to initialize camera'
+        }), 500
+    
+    verification_thread = threading.Thread(target=verify_person)
+    verification_thread.start()
+    
+    return jsonify({
+        'status': 'success',
+        'message': 'Verification started'
+    })
+
+@app.route('/check_verification_status')
+def check_verification_status():
+    return jsonify({
+        'status': verification_status,
+        'verification_complete': verification_complete
+    })
+
+@app.route('/start_test', methods=['POST'])
+def start_test():
+    global is_recording, recording_thread
+    
+    if is_recording:
+        return jsonify({
+            'status': 'error',
+            'message': 'Recording already in progress'
+        }), 400
+    
+    data = request.json
+    student_id = data.get('studentId')
+    paper_id = data.get('paperId')
+    teacher_id = data.get('teacherId')
+    
+    if not all([student_id, paper_id, teacher_id]):
+        return jsonify({
+            'status': 'error',
+            'message': 'Missing required parameters'
+        }), 400
+    
+    if not initialize_camera():
+        return jsonify({
+            'status': 'error',
+            'message': 'Failed to initialize camera'
+        }), 500
+    
+    is_recording = True
+    recording_thread = threading.Thread(
+        target=record_video,
+        args=(student_id, paper_id, teacher_id)
+    )
+    recording_thread.start()
+    
+    return jsonify({
+        'status': 'success',
+        'message': 'Recording started'
+    })
+
+@app.route('/stop_recording', methods=['POST'])
+def stop_recording():
+    global is_recording, recording_thread
+    
+    is_recording = False
+    
+    if recording_thread and recording_thread.is_alive():
+        recording_thread.join(timeout=2)  # Wait up to 2 seconds for recording to stop
+    
+    cleanup_camera()
+
+    return jsonify({
+        'status': 'success',
+        'message': 'Recording stopped'
+    })
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
