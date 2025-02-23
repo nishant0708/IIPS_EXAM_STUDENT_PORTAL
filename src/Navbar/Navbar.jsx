@@ -12,6 +12,7 @@ import axios from "axios";
 import "./Navbar.css";
 import { submitResponse } from "../SubmitFunction/Submit";
 import AlertModal from "../AlertModal/AlertModal";
+import { useRecording, VideoFeed } from "../RecordingContext";
 
 const Navbar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -27,7 +28,7 @@ const Navbar = () => {
   const [timeOutModalIsOpen, setTimeOutModalIsOpen] = useState(false);
   const [submitModalIsOpen, setSubmitModalIsOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-
+  const { stopRecording } = useRecording();
   const { questionId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -160,7 +161,8 @@ const Navbar = () => {
           "Test time is up, your paper is submitted automatically, please exit!!"
         );
         setTimeOutModalIsOpen(true);
-        setTimeout(() => {
+        setTimeout(async() => {
+          await stopRecording();
           navigate("/");
           localStorage.clear();
         }, 3000); // Delay for 3 seconds to show modal
@@ -214,12 +216,7 @@ const Navbar = () => {
           <div>{studentDetails.fullName}</div>
         </div>
         <div>
-        <img
-        id="webcam_navbar"
-        className="webcam_navbar"
-        src="http://127.0.0.1:5000/video_feed"
-        alt="Webcam feed"
-      />
+        <VideoFeed/>
         </div>
         <div className="navbar-contents">
           <div className="navigation-display-flex">

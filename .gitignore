@@ -10,7 +10,9 @@ dist/StudentPortal Setup 0.1.0.exe
 dist/win-unpacked/StudentPortal.exe
 dist/win-unpacked/resources/app.asar
 student_portal.zip
-
+backend/venv
+backend/yolov8l.pt
+backend/yolov8n.pt
 # testing
 /coverage
 
